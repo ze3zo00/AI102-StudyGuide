@@ -1,5 +1,6 @@
 # AI-102: Designing and Implementing a Microsoft Azure AI Solution
 ## The Ultimate Complete Study Guide - Your Only Resource Needed
+#### <mark> *** Note - for a Webpage version of the study guide, please click [here](https://ze3zo00.github.io/AI102-StudyGuide/)!! *** </mark>
 
 **Exam Information:**
 - **Passing Score**: 700/1000
