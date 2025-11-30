@@ -573,15 +573,43 @@
             color: var(--text-primary);
         }
         
+        /* Table wrapper for horizontal scrolling on small screens */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin: 30px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 2px solid var(--border-color);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 30px 0;
+            margin: 0;
             background-color: var(--bg-primary);
-            box-shadow: 0 2px 8px var(--shadow-color);
             border-radius: 8px;
             overflow: hidden;
-            border: 2px solid var(--border-color);
+            min-width: 600px; /* Ensures table doesn't compress too much */
         }
 
         thead {
@@ -1182,6 +1210,7 @@
 <section id="all-services-endpoints-and-key-methods-at-a-glance"><h2>All Services, Endpoints, and Key Methods at a Glance</h2>
 <p>This section provides a quick lookup table for all Azure AI services. Use this for final review before the exam or when you need to quickly recall an endpoint or method.</p>
 <h3 id="vision-services">Vision Services</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1223,7 +1252,9 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="language-services">Language Services</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1272,7 +1303,9 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="search-and-document-services">Search and Document Services</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1293,7 +1326,9 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="decision-and-content-services">Decision and Content Services</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1321,7 +1356,9 @@
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="generative-ai">Generative AI</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -1342,6 +1379,7 @@
 </tr>
 </tbody>
 </table>
+</div>
 <hr>
 <section id="section-1-plan-and-manage-an-azure-ai-solution-15-20"><h1>SECTION 1: PLAN AND MANAGE AN AZURE AI SOLUTION (15-20%)</h1>
 <p>This section tests your ability to make architectural decisions, select appropriate services, configure security, implement monitoring, and manage costs. These skills apply across ALL Azure AI services, so understanding this section is fundamental to passing the exam.</p>
@@ -3596,6 +3634,7 @@ else:
 <section id="41-azure-ai-language-text-analytics-comprehensive-coverage"><h2>4.1 Azure AI Language (Text Analytics) - Comprehensive Coverage</h2>
 <p>Text Analytics analyzes existing text for insights. Unlike CLU/LUIS which understand conversational intent, Text Analytics extracts information from any text.</p>
 <h3 id="core-capabilities-decision-matrix">Core Capabilities Decision Matrix</h3>
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
@@ -3658,6 +3697,7 @@ else:
 </tr>
 </tbody>
 </table>
+</div>
 <h3 id="rest-api-sentiment-analysis">REST API - Sentiment Analysis</h3>
 <pre><code class="language-bash">POST https://{endpoint}/text/analytics/v3.1/sentiment
 Content-Type: application/json
