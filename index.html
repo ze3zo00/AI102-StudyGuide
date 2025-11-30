@@ -46,6 +46,21 @@
             top: 0;
             z-index: 10;
         }
+        .mobile-close {
+            display: none;
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 1105;
+        }
+        @media (max-width: 1024px) {
+            .mobile-close { display: block; }
+        }
         
         .sidebar-header h1 {
             font-size: 22px;
@@ -535,6 +550,21 @@
                 padding-left: 30px;
                 padding-right: 30px;
             }
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1100;
+                background-color: #000000;
+                color: #ffcc00;
+                border: 2px solid #ffcc00;
+                padding: 12px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+            }
         }
         
         @media (max-width: 768px) {
@@ -573,6 +603,33 @@
                 font-weight: 600;
             }
         }
+
+        /* Mobile overlay for sidebar (fade in/out) */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 995;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease-in-out;
+        }
+        .sidebar-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+                /* Accessibility: screen-reader-only text */
+                .sr-only {
+                    position: absolute !important;
+                    height: 1px; width: 1px;
+                    overflow: hidden;
+                    clip: rect(1px, 1px, 1px, 1px);
+                    white-space: nowrap; /* added line */
+                }
+        .no-scroll { overflow: hidden; }
         
         .mobile-menu-btn {
             display: none;
@@ -595,6 +652,7 @@
                 <button class="sidebar-btn" id="expand-all" onclick="expandAllSections()" aria-label="Expand all sections">Expand All</button>
                 <button class="sidebar-btn" id="collapse-all" onclick="collapseAllSections()" aria-label="Collapse all sections">Collapse All</button>
             </div>
+            <button class="mobile-close" id="mobile-close" onclick="toggleMobileMenu()" aria-label="Close sidebar">✕</button>
         </div>
         
         <div class="sidebar-content">
@@ -708,6 +766,8 @@
             </div>
         </div>
     </nav>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMobileMenu()" aria-hidden="true"></div>
+    <div id="aria-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -4008,6 +4068,7 @@ embedding_vector = response.data[0].embedding
                 subsections.setAttribute('aria-hidden', 'true');
                 element.setAttribute('aria-expanded', 'false');
             }
+            saveSidebarState();
         }
 
         // Expand all sidebar sections
@@ -4020,6 +4081,9 @@ embedding_vector = response.data[0].embedding
                 title.classList.remove('collapsed');
                 title.setAttribute('aria-expanded', 'true');
             });
+            saveSidebarState();
+            // Announce
+            announceToScreenReader('Expanded all sections');
         }
 
         // Collapse all sidebar sections
@@ -4032,6 +4096,9 @@ embedding_vector = response.data[0].embedding
                 title.classList.add('collapsed');
                 title.setAttribute('aria-expanded', 'false');
             });
+            saveSidebarState();
+            // Announce
+            announceToScreenReader('Collapsed all sections');
         }
 
         // Highlight active section in sidebar
@@ -4079,7 +4146,11 @@ embedding_vector = response.data[0].embedding
         // Toggle mobile menu
         function toggleMobileMenu() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('mobile-open');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('visible', isOpen);
+            document.body.classList.toggle('no-scroll', isOpen);
+            sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
         }
 
         // Smooth scroll for anchor links
@@ -4117,8 +4188,12 @@ embedding_vector = response.data[0].embedding
         });
         // Initialize aria attributes for sidebar sections
         function initializeSidebarAria() {
-            document.querySelectorAll('.nav-section-title').forEach(title => {
+            document.querySelectorAll('.nav-section-title').forEach((title, idx) => {
                 const subsections = title.nextElementSibling;
+                // assign a stable data-section-id for persistence
+                if (!title.getAttribute('data-section-id')) {
+                    title.setAttribute('data-section-id', `section-${idx + 1}`);
+                }
                 const isCollapsed = subsections.classList.contains('collapsed');
                 title.setAttribute('role', 'button');
                 title.setAttribute('tabindex', '0');
@@ -4132,9 +4207,61 @@ embedding_vector = response.data[0].embedding
                     }
                 });
             });
+            // restore state from localStorage
+            restoreSidebarState();
         }
         // call initialization
         document.addEventListener('DOMContentLoaded', initializeSidebarAria);
+        // LocalStorage helper functions
+        const SIDEBAR_STATE_KEY = 'ai102_sidebar_state_v1';
+        function saveSidebarState() {
+            const titles = Array.from(document.querySelectorAll('.nav-section-title'));
+            const collapsed = titles.filter(t => t.classList.contains('collapsed')).map(t => t.getAttribute('data-section-id'));
+            try {
+                localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify({ collapsed }));
+            } catch (e) { console.warn('Failed saving sidebar state', e); }
+        }
+        function restoreSidebarState() {
+            try {
+                const raw = localStorage.getItem(SIDEBAR_STATE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                const collapsed = parsed && parsed.collapsed ? parsed.collapsed : [];
+                document.querySelectorAll('.nav-section-title').forEach(title => {
+                    const id = title.getAttribute('data-section-id');
+                    const subsections = title.nextElementSibling;
+                    if (collapsed.includes(id)) {
+                        subsections.classList.add('collapsed');
+                        title.classList.add('collapsed');
+                        subsections.setAttribute('aria-hidden', 'true');
+                        title.setAttribute('aria-expanded', 'false');
+                    } else {
+                        subsections.classList.remove('collapsed');
+                        title.classList.remove('collapsed');
+                        subsections.setAttribute('aria-hidden', 'false');
+                        title.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            } catch (e) { console.warn('Failed restoring sidebar state', e); }
+        }
+
+        function announceToScreenReader(message) {
+            const live = document.getElementById('aria-live');
+            if (live) {
+                live.innerText = '';
+                setTimeout(() => { live.innerText = message; }, 50);
+            }
+        }
+        // Close mobile sidebar when viewport expands above mobile/tablet size
+        window.addEventListener('resize', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (window.innerWidth > 1024 && sidebar.classList.contains('mobile-open')) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('visible');
+                document.body.classList.remove('no-scroll');
+            }
+        });
     </script>
     <script>
     // Anchor validation & report
