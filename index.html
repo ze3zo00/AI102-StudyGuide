@@ -6,20 +6,64 @@
     <title>AI-102 Complete Interactive Study Guide</title>
     <!-- Document metadata -->
     <meta name="author" content="Zezo">
-    <meta name="version" content="v1.0.0">
+    <meta name="version" content="v3.0.0">
     <meta name="publish-date" content="Nov 29, 2025">
     <style>
+        /* CSS Variables for Light/Dark Mode */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+            --code-bg: #f5f5f5;
+            --code-border: #e0e0e0;
+            --table-border: #dddddd;
+            --table-header-bg: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --accent-color: #ffcc00;
+            --sidebar-bg: #1a1a1a;
+            --sidebar-text: #ffffff;
+            --tip-bg: #fffbea;
+            --tip-text: #1a1a1a;
+            --warning-bg: #ffe6e6;
+            --warning-text: #cc0000;
+            --hr-color: #e0e0e0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #444444;
+            --code-bg: #2a2a2a;
+            --code-border: #444444;
+            --table-border: #444444;
+            --table-header-bg: #2a2a2a;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --accent-color: #ffcc00;
+            --sidebar-bg: #0a0a0a;
+            --sidebar-text: #ffffff;
+            --tip-bg: rgba(255, 204, 0, 0.15);
+            --tip-text: #e0e0e0;
+            --warning-bg: rgba(255, 0, 0, 0.15);
+            --warning-text: #ff6666;
+            --hr-color: #444444;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.7;
-            color: #1a1a1a;
-            background-color: #ffffff;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         /* Sidebar Styles - Black background */
@@ -29,10 +73,11 @@
             top: 0;
             width: 340px;
             height: 100vh;
-            background-color: #1a1a1a;
-            color: #ffffff;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
             overflow-y: auto;
             padding: 0;
+            transition: background-color 0.3s ease;
             box-shadow: 4px 0 12px rgba(0,0,0,0.3);
             z-index: 1000;
             border-right: 3px solid #333;
@@ -58,8 +103,28 @@
             cursor: pointer;
             z-index: 1105;
         }
+                /* Responsive content: prevent horizontal scroll */
+                body {
+                    overflow-x: hidden;
+                }
+                /* Make code snippets wrap on small screens */
+                pre, code {
+                    white-space: pre-wrap !important;
+                    word-break: break-word !important;
+                    max-width: 100%;
+                }
+                img, table {
+                    max-width: 100%;
+                    height: auto;
+                }
         @media (max-width: 1024px) {
             .mobile-close { display: block; }
+        }
+
+        /* Show mobile menu for touch devices regardless of width */
+        @media (hover: none) and (pointer: coarse) {
+            .mobile-menu-btn { display: block !important; }
+            .mobile-close { display: block !important; }
         }
         
         .sidebar-header h1 {
@@ -86,6 +151,47 @@
             font-weight: 700;
         }
         .sidebar-controls button:hover { background: rgba(255,255,255,0.04); }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 110px;
+            right: 40px;
+            background-color: #000000;
+            color: #ffcc00;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            z-index: 1095;
+            transition: all 0.3s;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px solid #ffcc00;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .theme-toggle.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+            background-color: #ffcc00;
+            color: #000000;
+        }
+
+        /* Debug mode visual aids */
+        .debug-mode .mobile-menu-btn { outline: 3px solid rgba(255,0,0,0.7); box-shadow: 0 6px 18px rgba(255,0,0,0.15); }
+        .debug-mode .sidebar { outline: 2px dashed rgba(0,255,0,0.7); }
+        .debug-mode .sidebar-overlay { outline: 2px dashed rgba(0,0,255,0.6); }
         
         .sidebar-header .subtitle {
             font-size: 13px;
@@ -113,7 +219,56 @@
             font-size: 12px;
             color: #ffcc00;
         }
-        
+
+        /* Search box styles */
+        .search-container {
+            padding: 0 15px 15px 15px;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #ffcc00;
+            outline: none;
+        }
+
+        .search-box::placeholder {
+            color: #888;
+        }
+
+        .search-results-info {
+            padding: 8px 15px;
+            margin: 0 15px 10px 15px;
+            background-color: #2a2a2a;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #ffcc00;
+            display: none;
+        }
+
+        .search-highlight {
+            background-color: #ffcc00;
+            color: #000000;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        .nav-subsections a.search-match {
+            background-color: rgba(255, 204, 0, 0.15);
+            border-left: 3px solid #ffcc00;
+        }
+
         .sidebar::-webkit-scrollbar {
             width: 10px;
         }
@@ -230,9 +385,18 @@
         .main-content {
             margin-left: 340px;
             padding: 0;
-            background-color: #ffffff;
+            background-color: var(--bg-primary);
             min-height: 100vh;
+            transition: background-color 0.3s ease;
         }
+        .site-footer {
+            background: #000000;
+            color: #ffcc00;
+            padding: 14px 20px;
+            text-align: center;
+            border-top: 3px solid #222;
+        }
+        .site-footer .footer-inner { max-width: 1400px; margin: 0 auto; font-size: 14px; }
         
         .content-header {
             background-color: #000000;
@@ -284,67 +448,67 @@
         
         .section-divider {
             height: 3px;
-            background-color: #000000;
+            background-color: var(--border-color);
             margin: 60px 0 40px 0;
         }
-        
+
         h1 {
-            color: #000000;
+            color: var(--text-primary);
             font-size: 36px;
             margin-bottom: 30px;
             padding-bottom: 15px;
-            border-bottom: 3px solid #000000;
+            border-bottom: 3px solid var(--border-color);
             font-weight: 700;
         }
-        
+
         h2 {
-            color: #000000;
+            color: var(--text-primary);
             font-size: 30px;
             margin: 40px 0 25px 0;
             padding-bottom: 12px;
-            border-bottom: 2px solid #cccccc;
+            border-bottom: 2px solid var(--border-color);
             font-weight: 600;
         }
         
         h3 {
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-size: 24px;
             margin-top: 35px;
             margin-bottom: 18px;
             font-weight: 600;
         }
-        
+
         h4 {
-            color: #2c2c2c;
+            color: var(--text-primary);
             font-size: 19px;
             margin-top: 25px;
             margin-bottom: 12px;
             font-weight: 600;
         }
-        
+
         h5 {
-            color: #3a3a3a;
+            color: var(--text-primary);
             font-size: 16px;
             margin-top: 20px;
             margin-bottom: 10px;
             font-weight: 600;
         }
-        
+
         p {
             margin-bottom: 18px;
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-size: 15.5px;
             line-height: 1.75;
         }
-        
+
         code {
-            background-color: #f5f5f5;
+            background-color: var(--code-bg);
             padding: 3px 7px;
             border-radius: 4px;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 14px;
             color: #d63384;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--code-border);
         }
         
         pre {
@@ -368,37 +532,37 @@
         }
         
         .tip-box {
-            background-color: #fffbea;
+            background-color: var(--tip-bg);
             border-left: 5px solid #ffcc00;
             padding: 20px 24px;
             margin: 25px 0;
             border-radius: 6px;
             box-shadow: 0 2px 6px rgba(255,204,0,0.2);
         }
-        
+
         .tip-box strong {
-            color: #000000;
+            color: var(--text-primary);
             font-size: 16px;
             display: block;
             margin-bottom: 8px;
         }
-        
+
         .tip-box p {
             margin-bottom: 0;
-            color: #1a1a1a;
+            color: var(--tip-text);
         }
-        
+
         .warning-box {
-            background-color: #ffe6e6;
+            background-color: var(--warning-bg);
             border-left: 5px solid #ff0000;
             padding: 20px 24px;
             margin: 25px 0;
             border-radius: 6px;
             box-shadow: 0 2px 6px rgba(255,0,0,0.2);
         }
-        
+
         .warning-box strong {
-            color: #cc0000;
+            color: var(--warning-text);
             font-size: 16px;
             display: block;
             margin-bottom: 8px;
@@ -406,24 +570,24 @@
         
         .warning-box p {
             margin-bottom: 0;
-            color: #1a1a1a;
+            color: var(--text-primary);
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 30px 0;
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: var(--bg-primary);
+            box-shadow: 0 2px 8px var(--shadow-color);
             border-radius: 8px;
             overflow: hidden;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
         }
-        
+
         thead {
             background-color: #1a1a1a;
         }
-        
+
         th {
             background-color: #1a1a1a;
             color: #ffffff;
@@ -435,20 +599,20 @@
             letter-spacing: 0.5px;
             border-bottom: 3px solid #ffcc00;
         }
-        
+
         td {
             padding: 16px 20px;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--table-border);
             font-size: 14.5px;
-            color: #1a1a1a;
+            color: var(--text-primary);
         }
-        
+
         tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: var(--bg-secondary);
         }
-        
+
         tbody tr:hover {
-            background-color: #fffbea;
+            background-color: rgba(255, 204, 0, 0.1);
         }
         
         tr:last-child td {
@@ -462,23 +626,23 @@
         
         li {
             margin-bottom: 10px;
-            color: #1a1a1a;
+            color: var(--text-primary);
             font-size: 15.5px;
             line-height: 1.7;
         }
-        
+
         strong {
             font-weight: 600;
-            color: #000000;
+            color: var(--text-primary);
         }
-        
+
         em {
             font-style: italic;
-            color: #2c2c2c;
+            color: var(--text-secondary);
         }
-        
+
         a {
-            color: #1a1a1a;
+            color: var(--text-primary);
             text-decoration: underline;
             transition: color 0.2s;
         }
@@ -489,7 +653,7 @@
         
         hr {
             border: none;
-            border-top: 2px solid #e0e0e0;
+            border-top: 2px solid var(--hr-color);
             margin: 40px 0;
         }
         
@@ -507,6 +671,7 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            z-index: 1090;
             transition: all 0.3s;
             opacity: 0;
             visibility: hidden;
@@ -528,7 +693,7 @@
         }
         
         @media print {
-            .sidebar, .back-to-top {
+            .sidebar, .back-to-top, .mobile-menu-btn, .theme-toggle {
                 display: none;
             }
             .main-content {
@@ -542,7 +707,18 @@
         @media (max-width: 1024px) {
             .sidebar {
                 width: 280px;
+                /* hide sidebar by default on tablet & phone sizes */
+                transform: translateX(-100%);
+                transition: transform 0.3s;
             }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+        /* Make mobile-open always visible when toggled (safety fallback) */
+        .sidebar.mobile-open {
+            transform: translateX(0) !important;
+        }
             .main-content {
                 margin-left: 280px;
             }
@@ -551,29 +727,50 @@
                 padding-right: 30px;
             }
             .mobile-menu-btn {
-                display: block;
+                display: flex;
+                align-items: center;
+                justify-content: center;
                 position: fixed;
                 top: 20px;
-                left: 20px;
+                right: 20px;
                 z-index: 1100;
                 background-color: #000000;
                 color: #ffcc00;
-                border: 2px solid #ffcc00;
-                padding: 12px 16px;
-                border-radius: 6px;
+                border: 3px solid #ffcc00;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
                 cursor: pointer;
-                font-size: 16px;
-                font-weight: 600;
+                font-size: 24px;
+                font-weight: bold;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+                transition: all 0.3s;
+                opacity: 0;
+                visibility: hidden;
+            }
+
+            .mobile-menu-btn.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .mobile-menu-btn:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+                background-color: #ffcc00;
+                color: #000000;
             }
         }
         
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                transition: transform 0.3s;
+                transition: transform 300ms cubic-bezier(.2,.8,.2,1);
             }
             .sidebar.mobile-open {
                 transform: translateX(0);
+                transition: transform 300ms cubic-bezier(.2,.8,.2,1);
+                will-change: transform;
             }
             .main-content {
                 margin-left: 0;
@@ -615,11 +812,12 @@
             z-index: 995;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.22s ease-in-out;
+            transition: opacity 300ms ease-in-out;
         }
         .sidebar-overlay.visible {
             opacity: 1;
             pointer-events: auto;
+            transition-delay: 90ms; /* slightly delayed when showing, to sync with slide */
         }
                 /* Accessibility: screen-reader-only text */
                 .sr-only {
@@ -631,9 +829,43 @@
                 }
         .no-scroll { overflow: hidden; }
         
+        /* menu position: default to right next to back-to-top */
+        .menu-position-right .mobile-menu-btn, .menu-position-right .mobile-menu-btn.scrolling, .menu-position-right .mobile-menu-btn.active {
+            right: calc(40px + 56px + 12px);
+            left: auto;
+        }
+        .menu-position-left .mobile-menu-btn, .menu-position-left .mobile-menu-btn.scrolling, .menu-position-left .mobile-menu-btn.active {
+            left: 20px;
+            right: auto;
+        }
+
         .mobile-menu-btn {
             display: none;
         }
+
+        /* Focus styles for accessibility */
+        button:focus,
+        a:focus,
+        [role="button"]:focus,
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: 3px solid #ffcc00;
+            outline-offset: 2px;
+        }
+
+        .nav-subsections a:focus {
+            outline: 2px solid #ffcc00;
+            outline-offset: 1px;
+            background-color: rgba(255, 204, 0, 0.1);
+        }
+
+        .back-to-top:focus,
+        .mobile-menu-btn:focus {
+            outline: 3px solid #ffcc00;
+            outline-offset: 3px;
+        }
+
         /* Smooth scrolling for anchor navigation */
         html {
             scroll-behavior: smooth;
@@ -641,7 +873,7 @@
     </style>
 </head>
 <body>
-    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰ Menu</button>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     
     <!-- Sidebar Navigation -->
     <nav class="sidebar" id="sidebar">
@@ -656,12 +888,17 @@
         </div>
         
         <div class="sidebar-content">
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search guide..." aria-label="Search the study guide">
+            </div>
+            <div class="search-results-info" id="searchResultsInfo"></div>
+
             <div class="exam-info">
                 <strong>📋 Exam Details</strong>
                 Questions: 40-60 | Duration: 100-120 min<br>
                 Passing Score: 700/1000 | Cost: $165 USD
             </div>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title" onclick="toggleSection(this)">
                     <span><span class="icon">📋</span>Quick Reference</span>
@@ -776,7 +1013,7 @@
             <p>Your Complete Interactive Study Guide - Everything You Need to Pass</p>
             <div class="doc-meta" aria-hidden="false">
                 <div class="meta-item" id="doc-author">Author: Zezo</div>
-                <div class="meta-item" id="doc-version">Version: v1.0.0</div>
+                <div class="meta-item" id="doc-version">Version: v3.0.0</div>
                 <div class="meta-item" id="doc-publish-date">Published: Nov 29, 2025</div>
             </div>
         </div>
@@ -786,11 +1023,11 @@
 <section id="the-ultimate-complete-study-guide-your-only-resource-needed"><h2>The Ultimate Complete Study Guide - Your Only Resource Needed</h2>
 <div class="tip-box"><p><strong>Exam Information:</strong></p></div>
 <ul>
-<li><strong>Passing Score</strong>: 700/1000</li>
-<li><strong>Duration</strong>: 100-120 minutes  </li>
-<li><strong>Questions</strong>: 40-60 (multiple choice, drag-drop, case studies)</li>
-<li><strong>Cost</strong>: $165 USD</li>
-<li><strong>Certification</strong>: Microsoft Certified: Azure AI Engineer Associate</li>
+<li><strong>Passing Score:</strong> 700/1000</li>
+<li><strong>Duration:</strong> 100-120 minutes  </li>
+<li><strong>Questions:</strong> 40-60 (multiple choice, drag-drop, case studies)</li>
+<li><strong>Cost:</strong> $165 USD</li>
+<li><strong>Certification:</strong> Microsoft Certified: Azure AI Engineer Associate</li>
 </ul>
 <div class="tip-box"><p><strong>Exam Weight Distribution:</strong></p></div>
 <ul>
@@ -929,16 +1166,16 @@
 <hr>
 <section id="how-to-use-this-guide"><h2>📖 How to Use This Guide</h2>
 <p>This guide is designed to be your complete, standalone resource for passing the AI-102 exam. It combines:</p>
-<p><strong>Conceptual Understanding</strong>: Every section explains WHAT each service is, WHY it exists, WHEN to use it, and HOW it compares to alternatives. You'll understand the decision-making process, not just memorize facts.</p>
-<p><strong>Practical Implementation</strong>: Every service includes both REST API endpoints with example requests AND Python SDK code with full explanations. You'll see how to actually implement solutions.</p>
-<div class="tip-box"><p><strong>Exam Focus</strong>: Decision frameworks, comparison tables, common scenarios, and exam tips throughout. You'll know exactly what the exam tests and how questions are structured.</p></div>
+<p><strong>Conceptual Understanding:</strong> Every section explains WHAT each service is, WHY it exists, WHEN to use it, and HOW it compares to alternatives. You'll understand the decision-making process, not just memorize facts.</p>
+<p><strong>Practical Implementation:</strong> Every service includes both REST API endpoints with example requests AND Python SDK code with full explanations. You'll see how to actually implement solutions.</p>
+<div class="tip-box"><p><strong>Exam Focus:</strong> Decision frameworks, comparison tables, common scenarios, and exam tips throughout. You'll know exactly what the exam tests and how questions are structured.</p></div>
 <p><strong>Study Approach for Next Week:</strong></p>
 <ul>
-<li><strong>Days 1-2</strong>: TL;DR + NLP section (30-35% of exam - highest priority)</li>
-<li><strong>Days 3-4</strong>: Vision + Knowledge Mining sections  </li>
-<li><strong>Day 5</strong>: Azure OpenAI + Decision Support + Management</li>
-<li><strong>Day 6</strong>: Review scenarios, practice questions, weak areas</li>
-<li><strong>Day 7</strong>: Light review of key concepts, rest well before exam</li>
+<li><strong>Days 1-2:</strong> TL;DR + NLP section (30-35% of exam - highest priority)</li>
+<li><strong>Days 3-4:</strong> Vision + Knowledge Mining sections  </li>
+<li><strong>Day 5:</strong> Azure OpenAI + Decision Support + Management</li>
+<li><strong>Day 6:</strong> Review scenarios, practice questions, weak areas</li>
+<li><strong>Day 7:</strong> Light review of key concepts, rest well before exam</li>
 </ul>
 <hr>
 <section id="tldr-quick-reference-guide"><h1>📋 TL;DR - QUICK REFERENCE GUIDE</h1>
@@ -1111,28 +1348,28 @@
 <section id="11-understanding-azure-ai-services"><h2>1.1 Understanding Azure AI Services</h2>
 <h3 id="what-are-azure-ai-services-and-why-do-they-exist">What Are Azure AI Services and Why Do They Exist?</h3>
 <p>Azure AI Services are Microsoft's collection of pre-built artificial intelligence capabilities delivered as cloud APIs. The fundamental concept is simple: instead of requiring teams to hire data scientists, collect massive training datasets, build machine learning infrastructure, and train models from scratch, Azure AI Services provide production-ready AI capabilities that any developer can integrate with simple API calls.</p>
-<p><strong>The Problem They Solve</strong>: Traditional AI development requires specialized expertise. Building a computer vision system that can identify objects in images traditionally requires understanding convolutional neural networks, gathering and labeling thousands of training images, managing GPU infrastructure for training, and optimizing model performance. This is expensive, time-consuming, and requires rare expertise.</p>
-<p><strong>The Solution</strong>: Azure AI Services eliminate these barriers. When you call the Computer Vision API to analyze an image, you leverage models trained on millions of images by Microsoft's research teams. You don't need to understand the underlying neural network architectures - you just send an image and receive back structured data describing what's in it. Microsoft handles model training, updates, scaling, and infrastructure management.</p>
-<p><strong>Real-World Analogy</strong>: Think of Azure AI Services like using a cloud database service instead of installing and managing database software yourself. Just as Azure SQL Database handles infrastructure, scaling, and maintenance while you focus on your queries and data, Azure AI Services handle AI infrastructure while you focus on using AI capabilities in your applications.</p>
+<p><strong>The Problem They Solve:</strong> Traditional AI development requires specialized expertise. Building a computer vision system that can identify objects in images traditionally requires understanding convolutional neural networks, gathering and labeling thousands of training images, managing GPU infrastructure for training, and optimizing model performance. This is expensive, time-consuming, and requires rare expertise.</p>
+<p><strong>The Solution:</strong> Azure AI Services eliminate these barriers. When you call the Computer Vision API to analyze an image, you leverage models trained on millions of images by Microsoft's research teams. You don't need to understand the underlying neural network architectures - you just send an image and receive back structured data describing what's in it. Microsoft handles model training, updates, scaling, and infrastructure management.</p>
+<p><strong>Real-World Analogy:</strong> Think of Azure AI Services like using a cloud database service instead of installing and managing database software yourself. Just as Azure SQL Database handles infrastructure, scaling, and maintenance while you focus on your queries and data, Azure AI Services handle AI infrastructure while you focus on using AI capabilities in your applications.</p>
 <h3 id="multi-service-vs-single-service-resources-deep-dive">Multi-Service vs Single-Service Resources - Deep Dive</h3>
 <p>When deploying Azure AI Services, your first decision is whether to create a <strong>multi-service resource</strong> (one endpoint for multiple services) or <strong>single-service resources</strong> (dedicated endpoint per service). This decision impacts authentication, security, billing, and operations.</p>
 <p><strong>Multi-Service Resource (Azure AI Services)</strong></p>
 <p>A multi-service resource provides one endpoint and one set of API keys that grant access to multiple AI services. When you create an "Azure AI Services" resource in the portal, that single resource allows calling Computer Vision, Text Analytics, Translator, Speech, and other services using the same authentication.</p>
-<p><strong>How It Works Technically</strong>: Azure routes your API requests to the appropriate service based on the endpoint path. If you call <code>https://myresource.cognitiveservices.azure.com/vision/v3.2/analyze</code>, Azure recognizes the <code>/vision/</code> path and routes to Computer Vision. If you call <code>/text/analytics/v3.1/sentiment</code>, it routes to Text Analytics. The routing is transparent - from your perspective, it's all one service.</p>
-<p><strong>Key Advantages</strong>:</p>
+<p><strong>How It Works Technically:</strong> Azure routes your API requests to the appropriate service based on the endpoint path. If you call <code>https://myresource.cognitiveservices.azure.com/vision/v3.2/analyze</code>, Azure recognizes the <code>/vision/</code> path and routes to Computer Vision. If you call <code>/text/analytics/v3.1/sentiment</code>, it routes to Text Analytics. The routing is transparent - from your perspective, it's all one service.</p>
+<p><strong>Key Advantages:</strong></p>
 <ul>
-<li><strong>Simplified Authentication</strong>: One key for all services means less key management, simpler application configuration, and easier key rotation</li>
-<li><strong>Consolidated Billing</strong>: Single line item on your Azure bill aggregating all service usage</li>
-<li><strong>Easier Development</strong>: Developers don't need separate credentials for each service during prototyping</li>
-<li><strong>Faster Deployment</strong>: Create one resource instead of multiple when building integrated solutions</li>
+<li><strong>Simplified Authentication:</strong> One key for all services means less key management, simpler application configuration, and easier key rotation</li>
+<li><strong>Consolidated Billing:</strong> Single line item on your Azure bill aggregating all service usage</li>
+<li><strong>Easier Development:</strong> Developers don't need separate credentials for each service during prototyping</li>
+<li><strong>Faster Deployment:</strong> Create one resource instead of multiple when building integrated solutions</li>
 </ul>
-<div class="tip-box"><p><strong>Critical Limitations</strong>:</p></div>
+<div class="tip-box"><p><strong>Critical Limitations:</strong></p></div>
 <ul>
-<li><strong>Security</strong>: The API key grants access to ALL services the resource supports. If your application only needs Text Analytics but uses a multi-service key, that key could also access Computer Vision, Speech, etc. This violates least-privilege security principles.</li>
-<li><strong>No Granular RBAC</strong>: You cannot assign different permissions for different services - it's all-or-nothing access</li>
-<li><strong>No Per-Service Networking</strong>: Cannot apply different virtual network or firewall rules to individual services</li>
-<li><strong>Limited Service Support</strong>: Some services like Custom Vision and Immersive Reader don't support multi-service resources and require dedicated resources</li>
-<li><strong>Regional Constraint</strong>: All services route through one region - you cannot deploy different services in different regions</li>
+<li><strong>Security:</strong> The API key grants access to ALL services the resource supports. If your application only needs Text Analytics but uses a multi-service key, that key could also access Computer Vision, Speech, etc. This violates least-privilege security principles.</li>
+<li><strong>No Granular RBAC:</strong> You cannot assign different permissions for different services - it's all-or-nothing access</li>
+<li><strong>No Per-Service Networking:</strong> Cannot apply different virtual network or firewall rules to individual services</li>
+<li><strong>Limited Service Support:</strong> Some services like Custom Vision and Immersive Reader don't support multi-service resources and require dedicated resources</li>
+<li><strong>Regional Constraint:</strong> All services route through one region - you cannot deploy different services in different regions</li>
 </ul>
 <p><strong>When to Use Multi-Service Resources</strong> (Exam Decision Framework):</p>
 <ul>
@@ -1144,20 +1381,20 @@
 </ul>
 <p><strong>Single-Service Resources</strong></p>
 <p>Single-service resources create dedicated endpoints for individual services. A Computer Vision resource provides only Computer Vision capabilities with its own keys and endpoint like <code>https://mycomputervision.cognitiveservices.azure.com/</code>.</p>
-<p><strong>Key Advantages</strong>:</p>
+<p><strong>Key Advantages:</strong></p>
 <ul>
-<li><strong>Security Isolation</strong>: Each service has separate credentials - developers/applications access only what they need</li>
-<li><strong>Granular RBAC</strong>: Assign different Azure roles per service (Alice gets Contributor on Computer Vision, only User rights on Text Analytics)</li>
-<li><strong>Per-Service Networking</strong>: Apply different firewall rules, private endpoints, virtual network configurations to each service</li>
-<li><strong>Regional Flexibility</strong>: Deploy Computer Vision in West Europe for EU data residency while Text Analytics runs in East US near your data</li>
-<li><strong>Cost Visibility</strong>: Azure bill shows exactly what each service costs, enabling chargeback and optimization</li>
-<li><strong>Service Support</strong>: All services including Custom Vision work with dedicated resources</li>
+<li><strong>Security Isolation:</strong> Each service has separate credentials - developers/applications access only what they need</li>
+<li><strong>Granular RBAC:</strong> Assign different Azure roles per service (Alice gets Contributor on Computer Vision, only User rights on Text Analytics)</li>
+<li><strong>Per-Service Networking:</strong> Apply different firewall rules, private endpoints, virtual network configurations to each service</li>
+<li><strong>Regional Flexibility:</strong> Deploy Computer Vision in West Europe for EU data residency while Text Analytics runs in East US near your data</li>
+<li><strong>Cost Visibility:</strong> Azure bill shows exactly what each service costs, enabling chargeback and optimization</li>
+<li><strong>Service Support:</strong> All services including Custom Vision work with dedicated resources</li>
 </ul>
-<p><strong>Limitations</strong>:</p>
+<p><strong>Limitations:</strong></p>
 <ul>
-<li><strong>Management Overhead</strong>: Must create, configure, monitor, and maintain each resource separately</li>
-<li><strong>Multiple Credentials</strong>: Application configuration becomes more complex with multiple endpoints and keys</li>
-<li><strong>More Complex Deployment</strong>: Infrastructure-as-code templates need to provision multiple resources</li>
+<li><strong>Management Overhead:</strong> Must create, configure, monitor, and maintain each resource separately</li>
+<li><strong>Multiple Credentials:</strong> Application configuration becomes more complex with multiple endpoints and keys</li>
+<li><strong>More Complex Deployment:</strong> Infrastructure-as-code templates need to provision multiple resources</li>
 </ul>
 <p><strong>When to Use Single-Service Resources</strong> (Exam Decision Framework):</p>
 <ul>
@@ -1168,25 +1405,27 @@
 <li>Need detailed cost allocation (chargeback to business units)</li>
 <li>Using services not supported by multi-service resources (Custom Vision, Immersive Reader)</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario Example</strong>:</p></div>
+<div class="tip-box">
+<p><strong>Exam Scenario Example:</strong></p>
 <p><em>"Your company processes customer photos in West Europe to comply with GDPR, but performs sentiment analysis on support tickets from a database in East US. Different teams manage computer vision and natural language processing with separate budgets. Which resource type should you use?"</em></p>
-<p><strong>Answer</strong>: Single-service resources. The scenario requires regional distribution (West Europe + East US), separate team management, and cost isolation - all impossible with multi-service resources.</p>
+<p><strong>Answer:</strong> Single-service resources. The scenario requires regional distribution (West Europe + East US), separate team management, and cost isolation - all impossible with multi-service resources.</p>
+</div>
 <h3 id="rest-api-architecture-pattern">REST API Architecture Pattern</h3>
 <p>All Azure AI Services follow a consistent REST API pattern that you must understand for the exam. Whether you're calling Computer Vision, Text Analytics, or any other service, the pattern is similar.</p>
-<p><strong>Standard Request Structure</strong>:</p>
+<p><strong>Standard Request Structure:</strong></p>
 <pre><code class="language-">POST https://{your-endpoint}/{service-path}/{api-version}
 Headers:
   Ocp-Apim-Subscription-Key: {your-key}
   Content-Type: application/json
 Body:
   {service-specific JSON}</code></pre>
-<p><strong>Components Explained</strong>:</p>
-<p><strong>Endpoint</strong>: Your resource's unique URL like <code>https://myresource.cognitiveservices.azure.com</code>. This endpoint is tied to a specific Azure region where your resource was created.</p>
-<p><strong>Service Path</strong>: Identifies which service and operation, like <code>/vision/v3.2/analyze</code> or <code>/text/analytics/v3.1/sentiment</code>. Each service has its own path structure.</p>
-<p><strong>API Version</strong>: Specifies which version of the API to use, like <code>?api-version=2023-10-01</code>. This allows Microsoft to update APIs without breaking existing applications.</p>
-<p><strong>Authentication Header</strong>: <code>Ocp-Apim-Subscription-Key</code> contains your API key. Alternative is using Azure AD tokens in the <code>Authorization</code> header with managed identities (more on this later).</p>
-<p><strong>Request Body</strong>: JSON containing the data to analyze and any parameters. Structure varies by service but follows predictable patterns.</p>
-<p><strong>Standard Response Structure</strong>:</p>
+<p><strong>Components Explained:</strong></p>
+<p><strong>Endpoint:</strong> Your resource's unique URL like <code>https://myresource.cognitiveservices.azure.com</code>. This endpoint is tied to a specific Azure region where your resource was created.</p>
+<p><strong>Service Path:</strong> Identifies which service and operation, like <code>/vision/v3.2/analyze</code> or <code>/text/analytics/v3.1/sentiment</code>. Each service has its own path structure.</p>
+<p><strong>API Version:</strong> Specifies which version of the API to use, like <code>?api-version=2023-10-01</code>. This allows Microsoft to update APIs without breaking existing applications.</p>
+<p><strong>Authentication Header:</strong> <code>Ocp-Apim-Subscription-Key</code> contains your API key. Alternative is using Azure AD tokens in the <code>Authorization</code> header with managed identities (more on this later).</p>
+<p><strong>Request Body:</strong> JSON containing the data to analyze and any parameters. Structure varies by service but follows predictable patterns.</p>
+<p><strong>Standard Response Structure:</strong></p>
 <pre><code class="language-json">{
   &quot;analysisResults&quot;: { /* service-specific data */ },
   &quot;metadata&quot;: {
@@ -1197,7 +1436,7 @@ Body:
 <p>Understanding this pattern means you can work with any Azure AI service even if you've never used it before - the structure is consistent.</p>
 <h3 id="python-sdk-architecture-pattern">Python SDK Architecture Pattern</h3>
 <p>The Python SDKs for Azure AI Services follow a consistent pattern using the <code>azure-ai-{service}</code> package naming convention.</p>
-<p><strong>Standard SDK Pattern</strong>:</p>
+<p><strong>Standard SDK Pattern:</strong></p>
 <pre><code class="language-python">from azure.ai.{service} import {Service}Client
 from azure.core.credentials import AzureKeyCredential
 
@@ -1209,25 +1448,25 @@ client = {Service}Client(endpoint, AzureKeyCredential(key))
 
 # Call service
 result = client.{operation}(input_data)</code></pre>
-<p><strong>Components Explained</strong>:</p>
-<p><strong>Import Pattern</strong>: Packages follow <code>azure.ai.textanalytics</code>, <code>azure.ai.vision.imageanalysis</code> naming. This consistency helps you find packages even for services you haven't used.</p>
-<p><strong>Client Initialization</strong>: Every service has a <code>{Service}Client</code> class that takes an endpoint and credential. The credential can be an <code>AzureKeyCredential</code> (for API keys) or Azure AD credentials (for managed identities).</p>
-<p><strong>Method Pattern</strong>: Client methods follow predictable naming - <code>analyze_<em></code> for analysis operations, <code>recognize_</em></code> for recognition tasks, <code>detect_*</code> for detection operations.</p>
-<p><strong>Result Objects</strong>: Methods return strongly-typed result objects with properties for different aspects of the analysis. This is better than working with raw JSON dictionaries.</p>
+<p><strong>Components Explained:</strong></p>
+<p><strong>Import Pattern:</strong> Packages follow <code>azure.ai.textanalytics</code>, <code>azure.ai.vision.imageanalysis</code> naming. This consistency helps you find packages even for services you haven't used.</p>
+<p><strong>Client Initialization:</strong> Every service has a <code>{Service}Client</code> class that takes an endpoint and credential. The credential can be an <code>AzureKeyCredential</code> (for API keys) or Azure AD credentials (for managed identities).</p>
+<p><strong>Method Pattern:</strong> Client methods follow predictable naming - <code>analyze_<em></code> for analysis operations, <code>recognize_</em></code> for recognition tasks, <code>detect_*</code> for detection operations.</p>
+<p><strong>Result Objects:</strong> Methods return strongly-typed result objects with properties for different aspects of the analysis. This is better than working with raw JSON dictionaries.</p>
 <h3 id="pricing-tiers-comprehensive-understanding">Pricing Tiers - Comprehensive Understanding</h3>
 <p>Azure AI Services offer different pricing tiers optimized for different usage patterns. Selecting the right tier is critical for both cost and capability, and the exam frequently tests this knowledge.</p>
 <p><strong>Free Tier (F0) - Detailed Analysis</strong></p>
 <p>The free tier provides limited quota at no cost, designed exclusively for learning, development, and proof-of-concept work.</p>
-<p><strong>Technical Characteristics</strong>:</p>
+<p><strong>Technical Characteristics:</strong></p>
 <ul>
-<li><strong>Quota</strong>: Service-specific monthly limits (e.g., 5,000 Computer Vision calls, 5,000 Text Analytics records, 2M Translator characters)</li>
-<li><strong>Rate Limits</strong>: Typically 10-20 calls per minute regardless of remaining quota</li>
-<li><strong>Infrastructure</strong>: Shared, best-effort resources with no performance guarantees</li>
-<li><strong>SLA</strong>: No service level agreement - no uptime guarantees</li>
-<li><strong>Features</strong>: Limited to basic features - no advanced options, custom models, or enterprise features</li>
-<li><strong>Availability</strong>: Cannot be used if quota exhausted until next month</li>
+<li><strong>Quota:</strong> Service-specific monthly limits (e.g., 5,000 Computer Vision calls, 5,000 Text Analytics records, 2M Translator characters)</li>
+<li><strong>Rate Limits:</strong> Typically 10-20 calls per minute regardless of remaining quota</li>
+<li><strong>Infrastructure:</strong> Shared, best-effort resources with no performance guarantees</li>
+<li><strong>SLA:</strong> No service level agreement - no uptime guarantees</li>
+<li><strong>Features:</strong> Limited to basic features - no advanced options, custom models, or enterprise features</li>
+<li><strong>Availability:</strong> Cannot be used if quota exhausted until next month</li>
 </ul>
-<p><strong>When Free Tier Is Appropriate</strong>:</p>
+<p><strong>When Free Tier Is Appropriate:</strong></p>
 <ul>
 <li>Learning how a service works</li>
 <li>Building proof-of-concept demonstrations</li>
@@ -1242,17 +1481,17 @@ result = client.{operation}(input_data)</code></pre>
 <li>Batch processing (rate limits prevent bulk operations)</li>
 <li>Testing at scale (quota too small for realistic load testing)</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Red Flags</strong>: If question mentions "production," "customers," "SLA," "availability requirements," or "processing thousands of items," free tier is never the answer.</p></div>
+<div class="tip-box"><p><strong>Exam Red Flags:</strong> If question mentions "production," "customers," "SLA," "availability requirements," or "processing thousands of items," free tier is never the answer.</p></div>
 <p><strong>Standard Tiers (S0, S1, S2, S3) - Comprehensive Analysis</strong></p>
 <p>Standard tiers provide pay-as-you-go pricing where you pay for actual usage. Different services structure tiers differently, but all share common characteristics.</p>
-<p><strong>Technical Characteristics</strong>:</p>
+<p><strong>Technical Characteristics:</strong></p>
 <ul>
-<li><strong>Pricing Model</strong>: Pay per transaction/operation with tiered pricing (higher volumes have lower per-unit costs)</li>
-<li><strong>Rate Limits</strong>: Much higher TPS (transactions per second) - often 10-100x higher than free tier</li>
-<li><strong>Infrastructure</strong>: Dedicated compute with guaranteed performance</li>
-<li><strong>SLA</strong>: 99.9% availability guarantee with financial backing</li>
-<li><strong>Scaling</strong>: Auto-scales to handle traffic spikes</li>
-<li><strong>Features</strong>: Access to all production features including VNet integration, private endpoints, CMK encryption</li>
+<li><strong>Pricing Model:</strong> Pay per transaction/operation with tiered pricing (higher volumes have lower per-unit costs)</li>
+<li><strong>Rate Limits:</strong> Much higher TPS (transactions per second) - often 10-100x higher than free tier</li>
+<li><strong>Infrastructure:</strong> Dedicated compute with guaranteed performance</li>
+<li><strong>SLA:</strong> 99.9% availability guarantee with financial backing</li>
+<li><strong>Scaling:</strong> Auto-scales to handle traffic spikes</li>
+<li><strong>Features:</strong> Access to all production features including VNet integration, private endpoints, CMK encryption</li>
 </ul>
 <p><strong>Pricing Examples</strong> (Understand the Pattern):</p>
 <ul>
@@ -1260,7 +1499,7 @@ result = client.{operation}(input_data)</code></pre>
 <li>Text Analytics S: $2.00 per 1,000 text records with volume discounts</li>
 <li>Translator S1: $10.00 per 1M characters translated</li>
 </ul>
-<p><strong>When Standard Tiers Are Appropriate</strong>:</p>
+<p><strong>When Standard Tiers Are Appropriate:</strong></p>
 <ul>
 <li>Production workloads serving customers</li>
 <li>Variable traffic patterns (pay for what you use)</li>
@@ -1270,36 +1509,36 @@ result = client.{operation}(input_data)</code></pre>
 </ul>
 <p><strong>Commitment Tiers (Provisioned Throughput) - Strategic Understanding</strong></p>
 <p>Commitment tiers involve pre-purchasing capacity at discounted rates. Instead of paying per transaction, you commit to minimum usage and receive lower per-unit pricing.</p>
-<p><strong>Technical Characteristics</strong>:</p>
+<p><strong>Technical Characteristics:</strong></p>
 <ul>
-<li><strong>Pricing Model</strong>: Pre-purchase specific capacity (e.g., 1M operations/month) at discounted rate</li>
-<li><strong>Commitment Period</strong>: Monthly or annual commits</li>
-<li><strong>Overage</strong>: Usage beyond commitment billed at standard rates</li>
-<li><strong>Savings</strong>: Typically 20-40% discount vs pay-as-you-go</li>
-<li><strong>Capacity Guarantee</strong>: Reserved throughput - your requests never throttle</li>
+<li><strong>Pricing Model:</strong> Pre-purchase specific capacity (e.g., 1M operations/month) at discounted rate</li>
+<li><strong>Commitment Period:</strong> Monthly or annual commits</li>
+<li><strong>Overage:</strong> Usage beyond commitment billed at standard rates</li>
+<li><strong>Savings:</strong> Typically 20-40% discount vs pay-as-you-go</li>
+<li><strong>Capacity Guarantee:</strong> Reserved throughput - your requests never throttle</li>
 </ul>
-<p><strong>Financial Model</strong>:</p>
+<p><strong>Financial Model:</strong></p>
 <ul>
 <li>Commit to 1M Text Analytics operations at $1.20/1K (vs $2.00/1K standard)</li>
 <li>If you use 1.2M operations: pay committed rate for 1M, standard rate for 200K</li>
 <li>If you use 800K operations: still pay for full 1M commitment (wasted 200K)</li>
 <li>Break-even at ~70-80% utilization due to discount</li>
 </ul>
-<p><strong>When Commitment Tiers Are Appropriate</strong>:</p>
+<p><strong>When Commitment Tiers Are Appropriate:</strong></p>
 <ul>
 <li>Stable, predictable usage patterns over months</li>
 <li>High-volume workloads where discount offsets risk</li>
 <li>Applications with consistent baseline load</li>
 <li>When budget is fixed and optimization is priority</li>
 </ul>
-<p><strong>When Commitment Tiers Are NOT Appropriate</strong>:</p>
+<p><strong>When Commitment Tiers Are NOT Appropriate:</strong></p>
 <ul>
 <li>New applications without usage history</li>
 <li>Variable or seasonal workloads</li>
 <li>Rapidly growing applications (hard to predict capacity needs)</li>
 <li>Development environments (usage varies widely)</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Decision Framework for Pricing Tiers</strong>:</p></div>
+<div class="tip-box"><p><strong>Exam Decision Framework for Pricing Tiers:</strong></p></div>
 <ol>
 <li><strong>Is it production?</strong> If no → Free tier possible. If yes → Standard or Commitment.</li>
 <li><strong>Is usage predictable?</strong> If no → Standard pay-as-you-go. If yes → Consider commitment.</li>
@@ -1307,34 +1546,36 @@ result = client.{operation}(input_data)</code></pre>
 <li><strong>Does scenario mention "variable traffic," "growing business," or "new application"?</strong> → Standard tier.</li>
 <li><strong>Are SLA or performance guarantees mentioned?</strong> → Not free tier (must be Standard or Commitment).</li>
 </ol>
-<div class="tip-box"><p><strong>Exam Scenario Example</strong>:</p></div>
+<div class="tip-box">
+<p><strong>Exam Scenario Example:</strong></p>
 <p><em>"Your company processes 5 million customer support tickets monthly with minimal variation. The current cost using pay-as-you-go Text Analytics is $10,000/month. The finance team wants to reduce costs. What should you recommend?"</em></p>
-<p><strong>Answer</strong>: Commitment tier. Stable usage pattern (5M tickets consistently) and cost reduction goal indicate commitment pricing. Calculate: 5M operations at commitment pricing saves ~30% = $3,000/month savings with minimal risk given stable usage.</p>
+<p><strong>Answer:</strong> Commitment tier. Stable usage pattern (5M tickets consistently) and cost reduction goal indicate commitment pricing. Calculate: 5M operations at commitment pricing saves ~30% = $3,000/month savings with minimal risk given stable usage.</p>
+</div>
 <section id="12-authentication-and-authorization"><h2>1.2 Authentication and Authorization</h2>
 <p>Authentication proves who/what is calling the API, while authorization determines what they can do. Understanding both is critical across all AI services.</p>
 <h3 id="api-key-authentication-how-it-works">API Key Authentication - How It Works</h3>
 <p>API keys are the simplest authentication method. When you create an AI service, Azure generates two keys (Key1 and Key2). Your application includes one key in the HTTP header of every request.</p>
-<p><strong>How Key Authentication Works Technically</strong>:</p>
+<p><strong>How Key Authentication Works Technically:</strong></p>
 <ol>
 <li>Your application makes HTTP request with header: <code>Ocp-Apim-Subscription-Key: abc123...</code></li>
 <li>Azure validates the key against stored keys for your resource</li>
 <li>If key matches → request proceeds to service</li>
 <li>If key invalid → HTTP 401 Unauthorized response</li>
 </ol>
-<p><strong>Why Two Keys?</strong>: To enable zero-downtime key rotation. You can regenerate Key1 while applications still use Key2, update applications to use new Key1, then regenerate Key2. Without two keys, regenerating the only key would immediately break all applications.</p>
-<p><strong>Key Advantages</strong>:</p>
+<p><strong>Why Two Keys?:</strong> To enable zero-downtime key rotation. You can regenerate Key1 while applications still use Key2, update applications to use new Key1, then regenerate Key2. Without two keys, regenerating the only key would immediately break all applications.</p>
+<p><strong>Key Advantages:</strong></p>
 <ul>
 <li>Simple to implement - just add header to requests</li>
 <li>No dependency on Azure AD</li>
 <li>Works from any environment (on-premises, other clouds, local machines)</li>
 <li>Quick to get started during development</li>
 </ul>
-<div class="tip-box"><p><strong>Critical Security Limitations</strong>:</p></div>
+<div class="tip-box"><p><strong>Critical Security Limitations:</strong></p></div>
 <ul>
-<li><strong>Full Access</strong>: A key grants complete access to the service - no granular permissions</li>
-<li><strong>No Expiration</strong>: Keys don't expire automatically - a compromised key remains valid until manually regenerated</li>
-<li><strong>No Audit Trail</strong>: Cannot determine who used a key (multiple apps might share same key)</li>
-<li><strong>Shared Secret Risk</strong>: Keys stored in application code/config can be leaked via source control, logs, etc.</li>
+<li><strong>Full Access:</strong> A key grants complete access to the service - no granular permissions</li>
+<li><strong>No Expiration:</strong> Keys don't expire automatically - a compromised key remains valid until manually regenerated</li>
+<li><strong>No Audit Trail:</strong> Cannot determine who used a key (multiple apps might share same key)</li>
+<li><strong>Shared Secret Risk:</strong> Keys stored in application code/config can be leaked via source control, logs, etc.</li>
 </ul>
 <p><strong>When API Keys Are Appropriate</strong> (Exam Perspective):</p>
 <ul>
@@ -1350,7 +1591,7 @@ result = client.{operation}(input_data)</code></pre>
 <li>Requirements for audit logging of access</li>
 <li>Compliance/security-focused questions</li>
 </ul>
-<p><strong>REST API Example with Key Authentication</strong>:</p>
+<p><strong>REST API Example with Key Authentication:</strong></p>
 <pre><code class="language-bash"># Analyze image using Computer Vision
 curl -X POST &quot;https://myresource.cognitiveservices.azure.com/vision/v3.2/analyze?visualFeatures=Objects,Tags&quot; \
   -H &quot;Ocp-Apim-Subscription-Key: your-api-key-here&quot; \
@@ -1358,7 +1599,7 @@ curl -X POST &quot;https://myresource.cognitiveservices.azure.com/vision/v3.2/an
   -d &#x27;{
     &quot;url&quot;: &quot;https://example.com/image.jpg&quot;
   }&#x27;</code></pre>
-<p><strong>Python SDK Example with Key Authentication</strong>:</p>
+<p><strong>Python SDK Example with Key Authentication:</strong></p>
 <pre><code class="language-python">from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
 
@@ -1380,7 +1621,7 @@ result = client.analyze_sentiment(documents)</code></pre>
 <p>Azure AD (Microsoft Entra ID) authentication uses tokens instead of static keys, providing significantly better security through managed identities, role-based access control, and comprehensive auditing.</p>
 <p><strong>What Is a Managed Identity?</strong></p>
 <p>A managed identity is an Azure AD identity automatically managed by Azure and tied to a specific resource like a Virtual Machine, App Service, or Azure Function. The key innovation: NO credentials in your code or configuration files.</p>
-<p><strong>How Managed Identities Work (Technical Flow)</strong>:</p>
+<p><strong>How Managed Identities Work (Technical Flow):</strong></p>
 <ol>
 <li>You enable managed identity on your Azure resource (e.g., App Service)</li>
 <li>Azure automatically creates an Azure AD service principal for that resource</li>
@@ -1390,44 +1631,44 @@ result = client.analyze_sentiment(documents)</code></pre>
 <li>Your code includes this token in the <code>Authorization: Bearer {token}</code> header</li>
 <li>AI service validates the token with Azure AD and processes the request</li>
 </ol>
-<p><strong>The key insight</strong>: Your application code NEVER sees or stores credentials. Azure handles the entire authentication flow automatically.</p>
-<p><strong>Types of Managed Identities</strong>:</p>
-<p><strong>System-Assigned Managed Identity</strong>:</p>
+<p><strong>The key insight:</strong> Your application code NEVER sees or stores credentials. Azure handles the entire authentication flow automatically.</p>
+<p><strong>Types of Managed Identities:</strong></p>
+<p><strong>System-Assigned Managed Identity:</strong></p>
 <ul>
 <li>Created when you enable managed identity on a resource</li>
 <li>Lifecycle tied to the resource - deleted when resource is deleted</li>
 <li>Unique to that one resource - cannot be shared</li>
 <li>Best for applications where each deployment instance needs separate identity</li>
 </ul>
-<p><strong>User-Assigned Managed Identity</strong>:</p>
+<p><strong>User-Assigned Managed Identity:</strong></p>
 <ul>
 <li>Created as standalone Azure resource</li>
 <li>Can be assigned to multiple resources (multiple VMs can share same identity)</li>
 <li>Independent lifecycle - persists even if resources using it are deleted</li>
 <li>Best when multiple resources need same permissions</li>
 </ul>
-<p id="configuring-role-based-access-control-rbac"><strong>Configuring Role-Based Access Control (RBAC)</strong>:</p>
+<p id="configuring-role-based-access-control-rbac"><strong>Configuring Role-Based Access Control (RBAC):</strong></p>
 <p>After creating a managed identity, you grant it permissions on the AI service using Azure RBAC roles.</p>
-<p><strong>Common Built-In Roles for AI Services</strong>:</p>
-<p><strong>Cognitive Services User</strong>:</p>
+<p><strong>Common Built-In Roles for AI Services:</strong></p>
+<p><strong>Cognitive Services User:</strong></p>
 <ul>
 <li>Can call API operations (read, write, delete, list)</li>
 <li>Cannot manage the resource itself (change pricing tier, delete resource, etc.)</li>
 <li>Appropriate for application code that uses the service</li>
 </ul>
-<p><strong>Cognitive Services Contributor</strong>:</p>
+<p><strong>Cognitive Services Contributor:</strong></p>
 <ul>
 <li>All User permissions PLUS can manage the service configuration</li>
 <li>Can change pricing tiers, regenerate keys, configure networking</li>
 <li>Appropriate for DevOps automation that deploys/configures services</li>
 </ul>
-<p><strong>Cognitive Services Data Reader (Speech)</strong>:</p>
+<p><strong>Cognitive Services Data Reader (Speech):</strong></p>
 <ul>
 <li>Read-only access to service data</li>
 <li>Cannot call APIs that modify data</li>
 <li>Appropriate for monitoring/auditing applications</li>
 </ul>
-<p><strong>How to Assign Roles (Exam Knowledge)</strong>:</p>
+<p><strong>How to Assign Roles (Exam Knowledge):</strong></p>
 <p>Via Azure Portal:</p>
 <ol>
 <li>Navigate to AI service resource</li>
@@ -1454,7 +1695,7 @@ az role assignment create \
   --assignee $PRINCIPAL_ID \
   --role &quot;Cognitive Services User&quot; \
   --scope $RESOURCE_ID</code></pre>
-<p><strong>Python SDK with Managed Identity</strong>:</p>
+<p><strong>Python SDK with Managed Identity:</strong></p>
 <pre><code class="language-python">from azure.identity import DefaultAzureCredential
 from azure.ai.textanalytics import TextAnalyticsClient
 
@@ -1480,27 +1721,29 @@ for idx, doc in enumerate(results):
 <li>✅ Compliance requirements for credential-less authentication</li>
 <li>✅ Microservices where each service should have minimal permissions</li>
 </ul>
-<p><strong>When Managed Identities Are NOT Required</strong>:</p>
+<p><strong>When Managed Identities Are NOT Required:</strong></p>
 <ul>
 <li>Applications running outside Azure (on-premises, other clouds) - use API keys or service principals</li>
 <li>Simple development/test scenarios where security overhead isn't justified</li>
 <li>Extremely simple applications (though managed identities should still be preferred)</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario Example</strong>:</p></div>
+<div class="tip-box">
+<p><strong>Exam Scenario Example:</strong></p>
 <p><em>"Your company's security policy prohibits storing credentials in application code or configuration files. Your App Service needs to call Text Analytics to analyze customer feedback. How should you implement authentication?"</em></p>
-<p><strong>Answer</strong>: Enable system-assigned managed identity on the App Service, grant it the Cognitive Services User role on the Text Analytics resource, and use DefaultAzureCredential in code. This eliminates credentials entirely while providing granular access control and full audit logging.</p>
+<p><strong>Answer:</strong> Enable system-assigned managed identity on the App Service, grant it the Cognitive Services User role on the Text Analytics resource, and use DefaultAzureCredential in code. This eliminates credentials entirely while providing granular access control and full audit logging.</p>
+</div>
 <section id="13-network-security-for-ai-services"><h2>1.3 Network Security for AI Services</h2>
 <p>Securing network access to AI services prevents unauthorized access and data exfiltration. The exam tests understanding of public endpoints with firewalls, service endpoints, and private endpoints.</p>
 <h3 id="public-endpoint-with-ip-firewall">Public Endpoint with IP Firewall</h3>
 <p>By default, AI service resources are accessible from any internet-connected client. You can restrict access by configuring IP-based firewall rules.</p>
-<p><strong>How IP Firewalls Work</strong>:</p>
+<p><strong>How IP Firewalls Work:</strong></p>
 <ul>
 <li>You specify allowed IP addresses or CIDR ranges</li>
 <li>Azure firewall checks the source IP of each request</li>
 <li>If source IP matches an allowed rule → request proceeds</li>
 <li>If source IP not allowed → HTTP 403 Forbidden</li>
 </ul>
-<p><strong>Configuration via Azure Portal</strong>:</p>
+<p><strong>Configuration via Azure Portal:</strong></p>
 <ol>
 <li>Navigate to AI service resource</li>
 <li>Select "Networking" under Settings</li>
@@ -1508,44 +1751,44 @@ for idx, doc in enumerate(results):
 <li>Add IP ranges under "Firewall"</li>
 <li>Save configuration</li>
 </ol>
-<p><strong>When to Use IP Firewall</strong>:</p>
+<p><strong>When to Use IP Firewall:</strong></p>
 <ul>
 <li>You know the public IP addresses of legitimate clients</li>
 <li>Simple protection for resources accessed from fixed locations (office, data center)</li>
 <li>First layer of defense before implementing more sophisticated controls</li>
 </ul>
-<p><strong>Limitations</strong>:</p>
+<p><strong>Limitations:</strong></p>
 <ul>
 <li>Public endpoint still exists (just firewalled)</li>
 <li>Source IPs can change (especially for cloud services)</li>
 <li>Doesn't protect against threats from allowed IPs</li>
 <li>Management overhead if many IPs/ranges need to be allowed</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Tip</strong>: IP firewalls are a basic control. For scenarios emphasizing strong security or compliance, private endpoints are the answer.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> IP firewalls are a basic control. For scenarios emphasizing strong security or compliance, private endpoints are the answer.</p></div>
 <h3 id="service-endpoints">Service Endpoints</h3>
 <p>Service endpoints provide optimized routing from Azure Virtual Networks to Azure services, with traffic staying on the Azure backbone network rather than traversing the internet.</p>
-<p><strong>How Service Endpoints Work</strong>:</p>
+<p><strong>How Service Endpoints Work:</strong></p>
 <ol>
 <li>You enable service endpoint for Microsoft.CognitiveServices on a VNet subnet</li>
 <li>Azure updates routing so traffic to Cognitive Services from that subnet uses Azure backbone</li>
 <li>You configure the AI service firewall to allow that specific subnet</li>
 <li>Traffic from the subnet reaches the service through Azure's internal network</li>
 </ol>
-<p><strong>Key Characteristics</strong>:</p>
+<p><strong>Key Characteristics:</strong></p>
 <ul>
 <li>Service still has public IP and public endpoint</li>
 <li>Traffic doesn't go over public internet (uses Azure backbone)</li>
 <li>Simpler than private endpoints (no DNS changes required)</li>
 <li>Free - no additional cost for service endpoints</li>
 </ul>
-<p><strong>When to Use Service Endpoints</strong>:</p>
+<p><strong>When to Use Service Endpoints:</strong></p>
 <ul>
 <li>VMs or other resources in Azure need to access AI services</li>
 <li>Want to avoid public internet for security/performance</li>
 <li>Don't need complete isolation (private endpoints)</li>
 <li>Cost-sensitive scenarios</li>
 </ul>
-<p><strong>Limitations vs Private Endpoints</strong>:</p>
+<p><strong>Limitations vs Private Endpoints:</strong></p>
 <ul>
 <li>Service still has public endpoint accessible from internet (though firewalled)</li>
 <li>Don't provide a private IP address</li>
@@ -1553,9 +1796,9 @@ for idx, doc in enumerate(results):
 </ul>
 <h3 id="private-endpoints-comprehensive-deep-dive">Private Endpoints - Comprehensive Deep Dive</h3>
 <p>Private endpoints bring Azure AI services into your virtual network with a private IP address, eliminating public internet exposure entirely.</p>
-<p><strong>How Private Endpoints Work (Detailed Technical Flow)</strong>:</p>
+<p><strong>How Private Endpoints Work (Detailed Technical Flow):</strong></p>
 <ol>
-<li><strong>Create Private Endpoint Resource</strong>: </li>
+<li><strong>Create Private Endpoint Resource:</strong> </li>
 </ol>
 <ul>
 <li>Links your AI service to a subnet in your VNet</li>
@@ -1563,7 +1806,7 @@ for idx, doc in enumerate(results):
 <li>Creates a network interface in your subnet</li>
 </ul>
 <ol>
-<li><strong>Private Link Connection</strong>:</li>
+<li><strong>Private Link Connection:</strong></li>
 </ol>
 <ul>
 <li>Azure establishes a Private Link connection from your VNet to the AI service</li>
@@ -1571,7 +1814,7 @@ for idx, doc in enumerate(results):
 <li>Service becomes accessible via the private IP</li>
 </ul>
 <ol>
-<li><strong>DNS Resolution</strong>:</li>
+<li><strong>DNS Resolution:</strong></li>
 </ol>
 <ul>
 <li>Public DNS for <code>myresource.cognitiveservices.azure.com</code> still resolves to public IP</li>
@@ -1581,14 +1824,14 @@ for idx, doc in enumerate(results):
 <li>Clients outside VNet (without access to Private DNS) use public IP</li>
 </ul>
 <ol>
-<li><strong>Network Security</strong>:</li>
+<li><strong>Network Security:</strong></li>
 </ol>
 <ul>
 <li>Optionally disable public network access entirely</li>
 <li>Service only accessible via private endpoint</li>
 <li>Network Security Groups can further restrict access</li>
 </ul>
-<p><strong>Complete Private Endpoint Setup</strong>:</p>
+<p><strong>Complete Private Endpoint Setup:</strong></p>
 <pre><code class="language-python"># Step 1: Create Private DNS Zone
 az network private-dns zone create \
   --resource-group myRG \
@@ -1631,30 +1874,30 @@ az network private-endpoint dns-zone-group create \
 <li>✅ Zero-trust network architecture</li>
 <li>✅ Scenarios stating "service must only be accessible from corporate network"</li>
 </ul>
-<p><strong>Architecture Patterns with Private Endpoints</strong>:</p>
-<p><strong>Hub-and-Spoke Topology</strong>:</p>
+<p><strong>Architecture Patterns with Private Endpoints:</strong></p>
+<p><strong>Hub-and-Spoke Topology:</strong></p>
 <ul>
 <li>Hub VNet contains shared services including private endpoints</li>
 <li>Spoke VNets peer to hub</li>
 <li>All spokes can access AI services through hub's private endpoints</li>
 <li>Centralizes private endpoint management</li>
 </ul>
-<p><strong>Multiple Region Deployment</strong>:</p>
+<p><strong>Multiple Region Deployment:</strong></p>
 <ul>
 <li>Create private endpoints in each region's VNet</li>
 <li>Configure private DNS zones in each region</li>
 <li>Ensures local access path (no cross-region traffic)</li>
 </ul>
-<p><strong>Hybrid Cloud with On-Premises</strong>:</p>
+<p><strong>Hybrid Cloud with On-Premises:</strong></p>
 <ul>
 <li>Private endpoint in Azure VNet</li>
 <li>VPN or ExpressRoute connects on-premises to Azure</li>
 <li>On-premises DNS forwards queries to Azure Private DNS</li>
 <li>On-premises systems access AI services via private endpoint</li>
 </ul>
-<p><strong>Common Exam Scenario</strong>:</p>
+<p><strong>Common Exam Scenario:</strong></p>
 <p><em>"Your company has a corporate policy that all Azure services must be inaccessible from the public internet. Applications running in your Azure VNet need to call Text Analytics. On-premises systems connected via ExpressRoute also need access. How should you configure networking?"</em></p>
-<p><strong>Answer</strong>: </p>
+<p><strong>Answer:</strong> </p>
 <ol>
 <li>Create private endpoint for Text Analytics in Azure VNet subnet</li>
 <li>Configure Private DNS zone and link to VNet</li>
@@ -1666,116 +1909,116 @@ az network private-endpoint dns-zone-group create \
 <p>Effective monitoring ensures AI services meet performance requirements and enables quick problem resolution. The exam tests knowledge of metrics, logs, alerts, and Application Insights integration.</p>
 <h3 id="azure-monitor-metrics-what-to-monitor-and-why">Azure Monitor Metrics - What to Monitor and Why</h3>
 <p>Azure AI Services automatically publish metrics to Azure Monitor. Understanding which metrics matter and what they indicate is critical for both exam and real-world operations.</p>
-<p><strong>Core Metrics for All AI Services</strong>:</p>
-<p><strong>Total Calls (Count)</strong>:</p>
+<p><strong>Core Metrics for All AI Services:</strong></p>
+<p><strong>Total Calls (Count):</strong></p>
 <ul>
-<li><strong>What</strong>: Number of API calls over time period</li>
-<li><strong>Why It Matters</strong>: Trending usage patterns, capacity planning, detecting anomalies</li>
-<li><strong>Exam Insight</strong>: Sudden drops might indicate application failures, spikes might indicate unexpected load or potential abuse</li>
+<li><strong>What:</strong> Number of API calls over time period</li>
+<li><strong>Why It Matters:</strong> Trending usage patterns, capacity planning, detecting anomalies</li>
+<li><strong>Exam Insight:</strong> Sudden drops might indicate application failures, spikes might indicate unexpected load or potential abuse</li>
 </ul>
-<p><strong>Successful Calls (Count)</strong>:</p>
+<p><strong>Successful Calls (Count):</strong></p>
 <ul>
-<li><strong>What</strong>: API calls that completed successfully (HTTP 200-299)</li>
-<li><strong>Why It Matters</strong>: Combined with Total Calls gives success rate</li>
-<li><strong>Formula</strong>: Success Rate = (Successful Calls / Total Calls) × 100</li>
-<li><strong>Exam Insight</strong>: Success rate < 99% indicates problems worth investigating</li>
+<li><strong>What:</strong> API calls that completed successfully (HTTP 200-299)</li>
+<li><strong>Why It Matters:</strong> Combined with Total Calls gives success rate</li>
+<li><strong>Formula:</strong> Success Rate = (Successful Calls / Total Calls) × 100</li>
+<li><strong>Exam Insight:</strong> Success rate < 99% indicates problems worth investigating</li>
 </ul>
-<p><strong>Total Errors (Count)</strong>:</p>
+<p><strong>Total Errors (Count):</strong></p>
 <ul>
-<li><strong>What</strong>: Failed API calls (HTTP 400-599)</li>
-<li><strong>Why It Matters</strong>: Indicates client errors (4xx) or service issues (5xx)</li>
-<li><strong>Exam Insight</strong>: Spike in errors correlates with application bugs or service problems</li>
+<li><strong>What:</strong> Failed API calls (HTTP 400-599)</li>
+<li><strong>Why It Matters:</strong> Indicates client errors (4xx) or service issues (5xx)</li>
+<li><strong>Exam Insight:</strong> Spike in errors correlates with application bugs or service problems</li>
 </ul>
-<p><strong>Data In/Out (Bytes)</strong>:</p>
+<p><strong>Data In/Out (Bytes):</strong></p>
 <ul>
-<li><strong>What</strong>: Volume of data sent to/from service</li>
-<li><strong>Why It Matters</strong>: Cost prediction, bandwidth optimization opportunities</li>
-<li><strong>Exam Insight</strong>: High data transfer with low call counts suggests sending unnecessarily large payloads</li>
+<li><strong>What:</strong> Volume of data sent to/from service</li>
+<li><strong>Why It Matters:</strong> Cost prediction, bandwidth optimization opportunities</li>
+<li><strong>Exam Insight:</strong> High data transfer with low call counts suggests sending unnecessarily large payloads</li>
 </ul>
-<p><strong>Latency (Milliseconds)</strong>:</p>
+<p><strong>Latency (Milliseconds):</strong></p>
 <ul>
-<li><strong>What</strong>: Time service takes to process requests</li>
-<li><strong>Measured</strong>: P50 (median), P95 (95th percentile), P99 (99th percentile)</li>
-<li><strong>Why It Matters</strong>: User experience, SLA compliance</li>
-<li><strong>Exam Insight</strong>: Monitor P95 not average - average hides outliers that affect users</li>
+<li><strong>What:</strong> Time service takes to process requests</li>
+<li><strong>Measured:</strong> P50 (median), P95 (95th percentile), P99 (99th percentile)</li>
+<li><strong>Why It Matters:</strong> User experience, SLA compliance</li>
+<li><strong>Exam Insight:</strong> Monitor P95 not average - average hides outliers that affect users</li>
 </ul>
-<p><strong>Throttled Requests (Count)</strong>:</p>
+<p><strong>Throttled Requests (Count):</strong></p>
 <ul>
-<li><strong>What</strong>: Requests denied due to rate limit exceeded (HTTP 429)</li>
-<li><strong>Why It Matters</strong>: Indicates need to upgrade tier or reduce request rate</li>
-<li><strong>Exam Insight</strong>: Any throttling indicates your tier doesn't match your usage pattern</li>
+<li><strong>What:</strong> Requests denied due to rate limit exceeded (HTTP 429)</li>
+<li><strong>Why It Matters:</strong> Indicates need to upgrade tier or reduce request rate</li>
+<li><strong>Exam Insight:</strong> Any throttling indicates your tier doesn't match your usage pattern</li>
 </ul>
-<p><strong>Service-Specific Metrics Examples</strong>:</p>
-<p><strong>Computer Vision</strong>:</p>
+<p><strong>Service-Specific Metrics Examples:</strong></p>
+<p><strong>Computer Vision:</strong></p>
 <ul>
 <li>Transactions by Feature (analyze vs OCR vs custom model)</li>
 <li>Image Size Processed (helps optimize cost by resizing images)</li>
 </ul>
-<p><strong>Text Analytics</strong>:</p>
+<p><strong>Text Analytics:</strong></p>
 <ul>
 <li>Records Processed (counts toward quota)</li>
 <li>Operations by Type (sentiment vs entities vs key phrases)</li>
 </ul>
-<p><strong>Speech</strong>:</p>
+<p><strong>Speech:</strong></p>
 <ul>
 <li>Audio Duration Processed</li>
 <li>Transactions by Operation (STT vs TTS)</li>
 </ul>
 <h3 id="diagnostic-logs-comprehensive-understanding">Diagnostic Logs - Comprehensive Understanding</h3>
 <p>Metrics tell you "what" happened (request failed), logs tell you "why" (authentication error, invalid input, timeout).</p>
-<p><strong>How Diagnostic Logging Works</strong>:</p>
+<p><strong>How Diagnostic Logging Works:</strong></p>
 <ol>
-<li><strong>Enable Diagnostic Settings</strong>: Configure which log categories to collect and where to send them</li>
-<li><strong>Logs Generated</strong>: Service writes detailed operation logs</li>
-<li><strong>Logs Routed</strong>: Sent to configured destinations (Log Analytics, Storage, Event Hub)</li>
-<li><strong>Query/Analyze</strong>: Use destination tools to analyze logs</li>
+<li><strong>Enable Diagnostic Settings:</strong> Configure which log categories to collect and where to send them</li>
+<li><strong>Logs Generated:</strong> Service writes detailed operation logs</li>
+<li><strong>Logs Routed:</strong> Sent to configured destinations (Log Analytics, Storage, Event Hub)</li>
+<li><strong>Query/Analyze:</strong> Use destination tools to analyze logs</li>
 </ol>
 <p><strong>Log Categories</strong> (vary by service but follow patterns):</p>
-<p><strong>Audit Logs</strong>:</p>
+<p><strong>Audit Logs:</strong></p>
 <ul>
 <li>WHO accessed the service (if using Azure AD auth)</li>
 <li>WHEN they accessed it</li>
 <li>WHAT operation they performed</li>
 <li>Result (success/failure)</li>
 </ul>
-<p><strong>Request/Response Logs</strong>:</p>
+<p><strong>Request/Response Logs:</strong></p>
 <ul>
 <li>Full request details (headers, parameters, body size)</li>
 <li>Processing duration</li>
 <li>Response status code</li>
 <li>Error messages if failed</li>
 </ul>
-<p><strong>Diagnostic Logs</strong>:</p>
+<p><strong>Diagnostic Logs:</strong></p>
 <ul>
 <li>Internal service operations</li>
 <li>Performance metrics per request</li>
 <li>Detailed error information</li>
 </ul>
-<p><strong>Destination Options</strong>:</p>
-<p><strong>Log Analytics Workspace</strong>:</p>
+<p><strong>Destination Options:</strong></p>
+<p><strong>Log Analytics Workspace:</strong></p>
 <ul>
-<li><strong>Best For</strong>: Querying, analysis, visualization, alerts</li>
-<li><strong>Capabilities</strong>: Kusto Query Language (KQL) for complex queries</li>
-<li><strong>Cost</strong>: Pay per GB ingested and retained</li>
-<li><strong>Retention</strong>: Configurable (30-730 days)</li>
-<li><strong>Exam Use</strong>: Primary destination for production monitoring</li>
+<li><strong>Best For:</strong> Querying, analysis, visualization, alerts</li>
+<li><strong>Capabilities:</strong> Kusto Query Language (KQL) for complex queries</li>
+<li><strong>Cost:</strong> Pay per GB ingested and retained</li>
+<li><strong>Retention:</strong> Configurable (30-730 days)</li>
+<li><strong>Exam Use:</strong> Primary destination for production monitoring</li>
 </ul>
-<p><strong>Azure Storage Account</strong>:</p>
+<p><strong>Azure Storage Account:</strong></p>
 <ul>
-<li><strong>Best For</strong>: Long-term retention, compliance archival</li>
-<li><strong>Capabilities</strong>: Cheap storage, but difficult to query</li>
-<li><strong>Cost</strong>: Very low (cents per GB/month)</li>
-<li><strong>Retention</strong>: Unlimited (configure lifecycle policies)</li>
-<li><strong>Exam Use</strong>: Compliance scenarios requiring multi-year log retention</li>
+<li><strong>Best For:</strong> Long-term retention, compliance archival</li>
+<li><strong>Capabilities:</strong> Cheap storage, but difficult to query</li>
+<li><strong>Cost:</strong> Very low (cents per GB/month)</li>
+<li><strong>Retention:</strong> Unlimited (configure lifecycle policies)</li>
+<li><strong>Exam Use:</strong> Compliance scenarios requiring multi-year log retention</li>
 </ul>
-<p><strong>Event Hub</strong>:</p>
+<p><strong>Event Hub:</strong></p>
 <ul>
-<li><strong>Best For</strong>: Streaming to external systems (Splunk, Elastic, etc.)</li>
-<li><strong>Capabilities</strong>: Real-time log streaming</li>
-<li><strong>Cost</strong>: Based on throughput units</li>
-<li><strong>Exam Use</strong>: Integrating with existing SIEM or monitoring solutions</li>
+<li><strong>Best For:</strong> Streaming to external systems (Splunk, Elastic, etc.)</li>
+<li><strong>Capabilities:</strong> Real-time log streaming</li>
+<li><strong>Cost:</strong> Based on throughput units</li>
+<li><strong>Exam Use:</strong> Integrating with existing SIEM or monitoring solutions</li>
 </ul>
-<p><strong>Configuring Diagnostic Settings (Python SDK)</strong>:</p>
+<p><strong>Configuring Diagnostic Settings (Python SDK):</strong></p>
 <pre><code class="language-python">from azure.mgmt.monitor import MonitorManagementClient
 from azure.identity import DefaultAzureCredential
 
@@ -1822,13 +2065,13 @@ monitor_client.diagnostic_settings.create_or_update(
 )</code></pre>
 <h3 id="querying-logs-with-kusto-kql">Querying Logs with Kusto (KQL)</h3>
 <p>Log Analytics uses KQL (Kusto Query Language) for querying. The exam may test basic KQL understanding.</p>
-<p><strong>Find All Failed Requests in Last 24 Hours</strong>:</p>
+<p><strong>Find All Failed Requests in Last 24 Hours:</strong></p>
 <pre><code class="language-kql">AzureDiagnostics
 | where TimeGenerated &gt; ago(24h)
 | where ResultCode &gt;= 400
 | project TimeGenerated, OperationName, ResultCode, DurationMs, CallerIPAddress
 | order by TimeGenerated desc</code></pre>
-<p><strong>Calculate Success Rate by Hour</strong>:</p>
+<p><strong>Calculate Success Rate by Hour:</strong></p>
 <pre><code class="language-kql">AzureDiagnostics
 | where TimeGenerated &gt; ago(7d)
 | summarize 
@@ -1838,24 +2081,24 @@ monitor_client.diagnostic_settings.create_or_update(
 | extend SuccessRate = (SuccessfulCalls * 100.0) / TotalCalls
 | project TimeGenerated, TotalCalls, SuccessRate
 | render timechart</code></pre>
-<p><strong>Find Most Common Errors</strong>:</p>
+<p><strong>Find Most Common Errors:</strong></p>
 <pre><code class="language-kql">AzureDiagnostics
 | where ResultCode &gt;= 400
 | summarize Count = count() by ResultCode, ErrorMessage
 | order by Count desc
 | take 10</code></pre>
-<div class="tip-box"><p><strong>Exam Tip</strong>: You don't need to write KQL on the exam, but understanding what KQL can do helps answer monitoring/troubleshooting questions. If a question asks "how would you identify the most common API errors," knowing you'd query logs is the answer.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> You don't need to write KQL on the exam, but understanding what KQL can do helps answer monitoring/troubleshooting questions. If a question asks "how would you identify the most common API errors," knowing you'd query logs is the answer.</p></div>
 <h3 id="creating-effective-alerts">Creating Effective Alerts</h3>
 <p>Alerts proactively notify you when metrics exceed thresholds or conditions occur, enabling response before users are significantly affected.</p>
-<p><strong>Alert Rule Components</strong>:</p>
+<p><strong>Alert Rule Components:</strong></p>
 <ol>
-<li><strong>Resource</strong>: Which service to monitor</li>
-<li><strong>Condition</strong>: What to check (metric threshold, log query result)</li>
-<li><strong>Action Group</strong>: What to do when condition met (email, SMS, webhook, Azure Function)</li>
-<li><strong>Alert Rule Logic</strong>: How often to evaluate, aggregation period</li>
+<li><strong>Resource:</strong> Which service to monitor</li>
+<li><strong>Condition:</strong> What to check (metric threshold, log query result)</li>
+<li><strong>Action Group:</strong> What to do when condition met (email, SMS, webhook, Azure Function)</li>
+<li><strong>Alert Rule Logic:</strong> How often to evaluate, aggregation period</li>
 </ol>
-<div class="tip-box"><p><strong>Example Alert Scenarios</strong>:</p></div>
-<p><strong>High Error Rate Alert</strong>:</p>
+<div class="tip-box"><p><strong>Example Alert Scenarios:</strong></p></div>
+<p><strong>High Error Rate Alert:</strong></p>
 <pre><code class="language-python"># Create alert when error rate exceeds 5%
 alert_condition = {
     &#x27;metric_name&#x27;: &#x27;TotalErrors&#x27;,
@@ -1864,7 +2107,7 @@ alert_condition = {
     &#x27;time_aggregation&#x27;: &#x27;Average&#x27;,
     &#x27;window_size&#x27;: &#x27;PT5M&#x27;  # 5-minute window
 }</code></pre>
-<p><strong>Approaching Quota Alert</strong>:</p>
+<p><strong>Approaching Quota Alert:</strong></p>
 <pre><code class="language-python"># Alert at 80% of monthly quota
 alert_condition = {
     &#x27;metric_name&#x27;: &#x27;TotalCalls&#x27;,
@@ -1873,7 +2116,7 @@ alert_condition = {
     &#x27;time_aggregation&#x27;: &#x27;Total&#x27;,
     &#x27;window_size&#x27;: &#x27;P1M&#x27;  # Monthly
 }</code></pre>
-<p><strong>Latency SLA Violation Alert</strong>:</p>
+<p><strong>Latency SLA Violation Alert:</strong></p>
 <pre><code class="language-python"># Alert when P95 latency exceeds 2 seconds
 alert_condition = {
     &#x27;metric_name&#x27;: &#x27;Latency&#x27;,
@@ -1883,23 +2126,23 @@ alert_condition = {
     &#x27;window_size&#x27;: &#x27;PT15M&#x27;  # 15 minutes
 }</code></pre>
 <p><strong>Action Groups</strong> - What Happens When Alert Fires:</p>
-<p><strong>Email/SMS Notification</strong>:</p>
+<p><strong>Email/SMS Notification:</strong></p>
 <ul>
 <li>Sends notification to specified email addresses or phone numbers</li>
 <li>Best for: Informational alerts, business hours monitoring</li>
 </ul>
-<p><strong>Azure Function/Logic App</strong>:</p>
+<p><strong>Azure Function/Logic App:</strong></p>
 <ul>
 <li>Triggers automated remediation</li>
 <li>Example: Auto-scale up pricing tier when throttling detected</li>
 <li>Best for: Automatable responses</li>
 </ul>
-<p><strong>Webhook</strong>:</p>
+<p><strong>Webhook:</strong></p>
 <ul>
 <li>Posts alert data to external system</li>
 <li>Best for: Integrating with ServiceNow, PagerDuty, Slack, Teams</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Alert Best Practices</strong>:</p></div>
+<div class="tip-box"><p><strong>Exam Alert Best Practices:</strong></p></div>
 <ul>
 <li>✅ Alert on trends, not single data points (5-15 minute windows, not 1 minute)</li>
 <li>✅ Use appropriate severity (Critical for service down, Warning for degradation)</li>
@@ -1910,22 +2153,22 @@ alert_condition = {
 <section id="15-cost-management-and-optimization"><h2>1.5 Cost Management and Optimization</h2>
 <p>Understanding and controlling AI service costs is tested throughout the exam. You must know cost models, tracking methods, and optimization strategies.</p>
 <h3 id="understanding-cost-drivers">Understanding Cost Drivers</h3>
-<p><strong>Primary Cost Factors</strong>:</p>
-<p><strong>1. Transaction Volume</strong>: Most services charge per operation</p>
+<p><strong>Primary Cost Factors:</strong></p>
+<p><strong>1. Transaction Volume:</strong> Most services charge per operation</p>
 <ul>
 <li>Computer Vision: Per 1,000 images analyzed</li>
 <li>Text Analytics: Per 1,000 text records</li>
 <li>Translator: Per 1M characters</li>
 <li>Speech: Per audio hour (STT) or per 1M characters (TTS)</li>
 </ul>
-<p><strong>2. Feature Complexity</strong>: Advanced features cost more</p>
+<p><strong>2. Feature Complexity:</strong> Advanced features cost more</p>
 <ul>
 <li>Computer Vision basic analyze: $1.50/1K</li>
 <li>Computer Vision Read API (OCR): $2.50/1K</li>
 <li>Custom Vision training: $20/hour</li>
 <li>Custom Vision prediction: $1.40/1K</li>
 </ul>
-<p><strong>3. Data Transfer</strong>: Cross-region transfer incurs charges</p>
+<p><strong>3. Data Transfer:</strong> Cross-region transfer incurs charges</p>
 <ul>
 <li>Within same region: Free</li>
 <li>Between regions: $0.02-0.08 per GB depending on regions</li>
@@ -1937,8 +2180,8 @@ alert_condition = {
 <li>Document Intelligence: Stores training documents</li>
 <li>Costs: Standard Azure Storage rates (~$0.02/GB/month)</li>
 </ul>
-<p id="tracking-costs-with-azure-cost-management"><strong>Tracking Costs with Azure Cost Management</strong>:</p>
-<p><strong>View Spending by Resource</strong>:</p>
+<p id="tracking-costs-with-azure-cost-management"><strong>Tracking Costs with Azure Cost Management:</strong></p>
+<p><strong>View Spending by Resource:</strong></p>
 <ol>
 <li>Navigate to Cost Management + Billing in Azure Portal</li>
 <li>Select "Cost Analysis"</li>
@@ -1950,7 +2193,7 @@ alert_condition = {
 <li>Service: See all Computer Vision costs across resources</li>
 <li>Tag: Use tags to allocate costs (department, application, environment)</li>
 </ul>
-<p><strong>Create Budgets</strong>:</p>
+<p><strong>Create Budgets:</strong></p>
 <pre><code class="language-python"># Budget Alert Example (understanding, not code you&#x27;d write)
 budget = {
     &#x27;amount&#x27;: 1000,  # $1,000 monthly budget
@@ -1974,57 +2217,57 @@ budget = {
         }
     }
 }</code></pre>
-<p id="cost-optimization-strategies"><strong>Cost Optimization Strategies</strong>:</p>
-<p><strong>1. Right-Size Resources</strong>:</p>
+<p id="cost-optimization-strategies"><strong>Cost Optimization Strategies:</strong></p>
+<p><strong>1. Right-Size Resources:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Using S3 tier when S1 tier sufficient</li>
-<li><strong>Solution</strong>: Analyze actual usage, downgrade if under-utilized</li>
-<li><strong>Savings</strong>: Up to 50-70% depending on tier difference</li>
+<li><strong>Problem:</strong> Using S3 tier when S1 tier sufficient</li>
+<li><strong>Solution:</strong> Analyze actual usage, downgrade if under-utilized</li>
+<li><strong>Savings:</strong> Up to 50-70% depending on tier difference</li>
 </ul>
-<p><strong>2. Use Commitment Pricing for Stable Workloads</strong>:</p>
+<p><strong>2. Use Commitment Pricing for Stable Workloads:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Paying $10,000/month pay-as-you-go for consistent 5M operations</li>
-<li><strong>Solution</strong>: Commit to 5M operations at 30% discount = $7,000/month</li>
-<li><strong>Savings</strong>: $3,000/month ($36,000/year)</li>
+<li><strong>Problem:</strong> Paying $10,000/month pay-as-you-go for consistent 5M operations</li>
+<li><strong>Solution:</strong> Commit to 5M operations at 30% discount = $7,000/month</li>
+<li><strong>Savings:</strong> $3,000/month ($36,000/year)</li>
 </ul>
-<p><strong>3. Optimize Data Sent to Services</strong>:</p>
+<p><strong>3. Optimize Data Sent to Services:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Sending 4MB images when service only needs 500KB</li>
-<li><strong>Solution</strong>: Resize images client-side before upload</li>
-<li><strong>Impact</strong>: </li>
+<li><strong>Problem:</strong> Sending 4MB images when service only needs 500KB</li>
+<li><strong>Solution:</strong> Resize images client-side before upload</li>
+<li><strong>Impact:</strong> </li>
 <li>Reduces data transfer costs</li>
 <li>Faster upload times</li>
 <li>Lower processing costs (some services charge by data volume)</li>
 <li>Better user experience</li>
 </ul>
-<p><strong>4. Implement Client-Side Caching</strong>:</p>
+<p><strong>4. Implement Client-Side Caching:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Analyzing same product image 1000 times/day</li>
-<li><strong>Solution</strong>: Cache Computer Vision results for 24 hours</li>
-<li><strong>Savings</strong>: 999 API calls eliminated per image = significant cost reduction</li>
+<li><strong>Problem:</strong> Analyzing same product image 1000 times/day</li>
+<li><strong>Solution:</strong> Cache Computer Vision results for 24 hours</li>
+<li><strong>Savings:</strong> 999 API calls eliminated per image = significant cost reduction</li>
 </ul>
-<p><strong>5. Batch Operations When Supported</strong>:</p>
+<p><strong>5. Batch Operations When Supported:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Making 1000 individual Text Analytics calls</li>
-<li><strong>Solution</strong>: Batch up to 10 documents per call = 100 calls instead of 1000</li>
-<li><strong>Savings</strong>: Reduces billable transactions, improves performance</li>
+<li><strong>Problem:</strong> Making 1000 individual Text Analytics calls</li>
+<li><strong>Solution:</strong> Batch up to 10 documents per call = 100 calls instead of 1000</li>
+<li><strong>Savings:</strong> Reduces billable transactions, improves performance</li>
 </ul>
-<p><strong>6. Use Appropriate Features</strong>:</p>
+<p><strong>6. Use Appropriate Features:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Using Custom Vision when Computer Vision's pre-built model works</li>
-<li><strong>Solution</strong>: Use Computer Vision (cheaper, no training needed)</li>
-<li><strong>Savings</strong>: Avoid custom model training costs ($20/hour) and higher prediction costs</li>
+<li><strong>Problem:</strong> Using Custom Vision when Computer Vision's pre-built model works</li>
+<li><strong>Solution:</strong> Use Computer Vision (cheaper, no training needed)</li>
+<li><strong>Savings:</strong> Avoid custom model training costs ($20/hour) and higher prediction costs</li>
 </ul>
-<p><strong>7. Regional Cost Optimization</strong>:</p>
+<p><strong>7. Regional Cost Optimization:</strong></p>
 <ul>
-<li><strong>Problem</strong>: Running Computer Vision in expensive region (Australia)</li>
-<li><strong>Solution</strong>: Move to cheaper region if compliance allows (East US)</li>
-<li><strong>Savings</strong>: ~10-15% cost reduction</li>
-<li><strong>Consideration</strong>: Ensure latency acceptable after move</li>
+<li><strong>Problem:</strong> Running Computer Vision in expensive region (Australia)</li>
+<li><strong>Solution:</strong> Move to cheaper region if compliance allows (East US)</li>
+<li><strong>Savings:</strong> ~10-15% cost reduction</li>
+<li><strong>Consideration:</strong> Ensure latency acceptable after move</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Cost Optimization Scenarios</strong>:</p></div>
-<p><strong>Scenario 1</strong>: <em>"Your Text Analytics costs doubled last month. How do you investigate?"</em></p>
-<p><strong>Answer Approach</strong>:</p>
+<div class="tip-box"><p><strong>Exam Cost Optimization Scenarios:</strong></p></div>
+<p><strong>Scenario 1:</strong> <em>"Your Text Analytics costs doubled last month. How do you investigate?"</em></p>
+<p><strong>Answer Approach:</strong></p>
 <ol>
 <li>Check Azure Cost Management for transaction volume trends</li>
 <li>Review metrics in Azure Monitor - did total calls double?</li>
@@ -2032,8 +2275,8 @@ budget = {
 <li>Review application logs - any changes to usage patterns?</li>
 <li>Check if new feature enabled (e.g., started using PII detection which costs more)</li>
 </ol>
-<p><strong>Scenario 2</strong>: <em>"Your application processes 10M images monthly with Computer Vision. Usage is stable. Current cost is $15,000/month. How can you reduce costs?"</em></p>
-<p><strong>Answer</strong>: </p>
+<p><strong>Scenario 2:</strong> <em>"Your application processes 10M images monthly with Computer Vision. Usage is stable. Current cost is $15,000/month. How can you reduce costs?"</em></p>
+<p><strong>Answer:</strong> </p>
 <ul>
 <li>Current: Pay-as-you-go at $1.50/1K images = $15,000</li>
 <li>Solution: Evaluate commitment tier for 10M operations</li>
@@ -2041,8 +2284,8 @@ budget = {
 <li>Additional: Analyze if images can be resized (smaller images = faster processing)</li>
 <li>Result: Commitment tier saves $4,500/month with minimal risk given stable usage</li>
 </ul>
-<p><strong>Scenario 3</strong>: <em>"You need to process support tickets in multiple languages. Should you use Translator before Text Analytics or does Text Analytics auto-detect language?"</em></p>
-<p><strong>Answer</strong>: Text Analytics auto-detects language, so translating first wastes money on Translator calls. Use Text Analytics directly - it analyzes text in 100+ languages natively. This saves translation costs entirely.</p>
+<p><strong>Scenario 3:</strong> <em>"You need to process support tickets in multiple languages. Should you use Translator before Text Analytics or does Text Analytics auto-detect language?"</em></p>
+<p><strong>Answer:</strong> Text Analytics auto-detects language, so translating first wastes money on Translator calls. Use Text Analytics directly - it analyzes text in 100+ languages natively. This saves translation costs entirely.</p>
 <p>This completes Section 1 foundation. The next sections will cover all specific AI services with the same level of detail - concepts, when to use, REST APIs, SDK examples, and exam scenarios.</p>
 <p>Would you like me to continue with Section 2 (Decision-Support Solutions), or should I pause here for you to review what I've created so far?</p>
 <hr>
@@ -2051,12 +2294,12 @@ budget = {
 <section id="21-azure-ai-content-safety-comprehensive-understanding"><h2>2.1 Azure AI Content Safety - Comprehensive Understanding</h2>
 <h3 id="what-is-content-safety-and-why-does-it-exist">What Is Content Safety and Why Does It Exist?</h3>
 <p>Azure AI Content Safety analyzes text and images for potentially harmful content across four primary categories: hate speech, violence, sexual content, and self-harm. The service exists to solve a critical problem in modern applications: user-generated content can contain harmful material that violates community standards, legal requirements, or ethical guidelines.</p>
-<p><strong>The Problem Content Safety Solves</strong>: Social platforms, content sharing sites, gaming communities, and any application accepting user input face the challenge of moderating content at scale. Manual human moderation cannot keep pace with millions of uploads daily. Content that slips through moderation can expose users to harmful material, create legal liability, damage brand reputation, and violate regulatory requirements in various jurisdictions.</p>
-<p><strong>How Content Safety Works Conceptually</strong>: The service uses machine learning models trained on vast datasets of harmful and safe content. When you submit text or an image, the models analyze it across multiple dimensions and assign severity scores for each harmful content category. The scores range from zero (safe) to seven (extremely harmful), allowing you to make decisions based on your application's tolerance levels.</p>
-<p><strong>Important Distinction</strong>: Content Safety detects potentially harmful content but does not make the final decision about what to allow or block. You configure thresholds and rules based on your application's requirements, community standards, and legal obligations. Different applications have different tolerance levels - a children's education app requires stricter moderation than an adult-focused social network.</p>
+<p><strong>The Problem Content Safety Solves:</strong> Social platforms, content sharing sites, gaming communities, and any application accepting user input face the challenge of moderating content at scale. Manual human moderation cannot keep pace with millions of uploads daily. Content that slips through moderation can expose users to harmful material, create legal liability, damage brand reputation, and violate regulatory requirements in various jurisdictions.</p>
+<p><strong>How Content Safety Works Conceptually:</strong> The service uses machine learning models trained on vast datasets of harmful and safe content. When you submit text or an image, the models analyze it across multiple dimensions and assign severity scores for each harmful content category. The scores range from zero (safe) to seven (extremely harmful), allowing you to make decisions based on your application's tolerance levels.</p>
+<p><strong>Important Distinction:</strong> Content Safety detects potentially harmful content but does not make the final decision about what to allow or block. You configure thresholds and rules based on your application's requirements, community standards, and legal obligations. Different applications have different tolerance levels - a children's education app requires stricter moderation than an adult-focused social network.</p>
 <h3 id="content-categories-explained">Content Categories Explained</h3>
 <p>Understanding what each category detects helps you configure appropriate thresholds and explain moderation decisions to users.</p>
-<p><strong>Hate Speech</strong>: Detects content attacking people or groups based on protected characteristics including race, ethnicity, religion, gender, sexual orientation, disability, or national origin. This includes slurs, dehumanizing language, stereotypes presented as facts, and calls for discrimination or violence against groups.</p>
+<p><strong>Hate Speech:</strong> Detects content attacking people or groups based on protected characteristics including race, ethnicity, religion, gender, sexual orientation, disability, or national origin. This includes slurs, dehumanizing language, stereotypes presented as facts, and calls for discrimination or violence against groups.</p>
 <p>Examples the service detects as hate speech:</p>
 <ul>
 <li>Racial or ethnic slurs and derogatory terms</li>
@@ -2065,7 +2308,7 @@ budget = {
 <li>Content advocating violence or harm based on protected characteristics</li>
 </ul>
 <p>The severity scoring considers both explicit hate speech (severity six to seven) and subtle biased language (severity two to three), allowing you to moderate based on your community standards.</p>
-<p><strong>Violence</strong>: Detects content depicting, glorifying, or inciting violence. This includes graphic violence, weapons in threatening contexts, descriptions of violent acts, and content encouraging physical harm to people or animals.</p>
+<p><strong>Violence:</strong> Detects content depicting, glorifying, or inciting violence. This includes graphic violence, weapons in threatening contexts, descriptions of violent acts, and content encouraging physical harm to people or animals.</p>
 <p>Examples the service detects:</p>
 <ul>
 <li>Graphic descriptions or images of violence, injury, or death</li>
@@ -2075,7 +2318,7 @@ budget = {
 <li>Animal cruelty or abuse</li>
 </ul>
 <p>The service distinguishes between educational content about violence (discussing history, news) versus glorifying or inciting violence, though this requires careful threshold setting.</p>
-<p><strong>Sexual Content</strong>: Detects sexually explicit material including nudity, sexual acts, and sexually suggestive content. The service calibrates detection based on context - medical or educational sexual content receives lower severity scores than pornographic material.</p>
+<p><strong>Sexual Content:</strong> Detects sexually explicit material including nudity, sexual acts, and sexually suggestive content. The service calibrates detection based on context - medical or educational sexual content receives lower severity scores than pornographic material.</p>
 <p>Examples the service detects:</p>
 <ul>
 <li>Explicit sexual imagery or descriptions</li>
@@ -2084,7 +2327,7 @@ budget = {
 <li>Content sexualizing minors (severity automatically maximized)</li>
 </ul>
 <p>The severity levels help you distinguish between content that is merely suggestive (lower severity) versus explicitly pornographic (higher severity), enabling appropriate moderation for your audience.</p>
-<p><strong>Self-Harm</strong>: Detects content related to suicide, self-injury, eating disorders, or other self-destructive behaviors. This is particularly sensitive because such content can trigger vulnerable individuals or provide harmful instructions.</p>
+<p><strong>Self-Harm:</strong> Detects content related to suicide, self-injury, eating disorders, or other self-destructive behaviors. This is particularly sensitive because such content can trigger vulnerable individuals or provide harmful instructions.</p>
 <p>Examples the service detects:</p>
 <ul>
 <li>Descriptions or depictions of self-harm methods</li>
@@ -2096,17 +2339,17 @@ budget = {
 <p>The challenge with self-harm content is distinguishing between harmful content versus people seeking help or support resources discussing these topics constructively. The service provides severity scores that help you make nuanced decisions - someone posting "I'm having suicidal thoughts and need help" should be connected with support resources, not simply blocked.</p>
 <h3 id="severity-levels-and-threshold-configuration">Severity Levels and Threshold Configuration</h3>
 <p>Content Safety assigns severity scores from zero to seven for each category. Understanding how to interpret and configure thresholds is critical for the exam.</p>
-<p><strong>Severity Score Interpretation</strong>:</p>
+<p><strong>Severity Score Interpretation:</strong></p>
 <ul>
-<li><strong>0</strong>: No harmful content detected in this category</li>
-<li><strong>1-2</strong>: Minimal concern - mild language or very subtle content</li>
-<li><strong>3-4</strong>: Moderate concern - content clearly in the category but not extreme</li>
-<li><strong>5-6</strong>: High concern - severe or explicit harmful content</li>
-<li><strong>7</strong>: Extreme concern - maximally harmful content</li>
+<li><strong>0:</strong> No harmful content detected in this category</li>
+<li><strong>1-2:</strong> Minimal concern - mild language or very subtle content</li>
+<li><strong>3-4:</strong> Moderate concern - content clearly in the category but not extreme</li>
+<li><strong>5-6:</strong> High concern - severe or explicit harmful content</li>
+<li><strong>7:</strong> Extreme concern - maximally harmful content</li>
 </ul>
-<p><strong>Configuring Thresholds</strong>: You decide the minimum severity level that triggers a moderation action. If you set a threshold of four for hate speech, content with severity zero through three passes through while four and above gets blocked or flagged for review.</p>
-<p><strong>Threshold Strategy Examples</strong>:</p>
-<p><strong>Strict Moderation (Children's App)</strong>:</p>
+<p><strong>Configuring Thresholds:</strong> You decide the minimum severity level that triggers a moderation action. If you set a threshold of four for hate speech, content with severity zero through three passes through while four and above gets blocked or flagged for review.</p>
+<p><strong>Threshold Strategy Examples:</strong></p>
+<p><strong>Strict Moderation (Children's App):</strong></p>
 <ul>
 <li>Hate Speech: Block at severity 2</li>
 <li>Violence: Block at severity 2</li>
@@ -2114,7 +2357,7 @@ budget = {
 <li>Self-Harm: Block at severity 2</li>
 <li>Rationale: Protect young users from any potentially harmful content, accepting higher false positive rates</li>
 </ul>
-<p><strong>Balanced Moderation (General Social Platform)</strong>:</p>
+<p><strong>Balanced Moderation (General Social Platform):</strong></p>
 <ul>
 <li>Hate Speech: Block at severity 4, flag for review at 3</li>
 <li>Violence: Block at severity 5, flag at 4</li>
@@ -2122,7 +2365,7 @@ budget = {
 <li>Self-Harm: Block at severity 3 (lower threshold due to sensitivity)</li>
 <li>Rationale: Allow robust discussion while protecting users from severe content</li>
 </ul>
-<p><strong>Permissive Moderation (Adult Discussion Forum)</strong>:</p>
+<p><strong>Permissive Moderation (Adult Discussion Forum):</strong></p>
 <ul>
 <li>Hate Speech: Block at severity 5, flag at 4</li>
 <li>Violence: Block at severity 6</li>
@@ -2132,7 +2375,7 @@ budget = {
 </ul>
 <p>The exam may present scenarios describing user populations and ask you to recommend appropriate thresholds. Consider the vulnerability of the audience, legal requirements, and community standards when making threshold decisions.</p>
 <h3 id="rest-api-implementation">REST API Implementation</h3>
-<p><strong>Analyze Text for Harmful Content</strong>:</p>
+<p><strong>Analyze Text for Harmful Content:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/contentsafety/text:analyze?api-version=2023-10-01
 Content-Type: application/json
 Ocp-Apim-Subscription-Key: {your-key}
@@ -2144,7 +2387,7 @@ Ocp-Apim-Subscription-Key: {your-key}
   &quot;haltOnBlocklistHit&quot;: false,
   &quot;outputType&quot;: &quot;FourSeverityLevels&quot;
 }</code></pre>
-<p><strong>Response Example</strong>:</p>
+<p><strong>Response Example:</strong></p>
 <pre><code class="language-json">{
   &quot;blocklistsMatch&quot;: [
     {
@@ -2172,7 +2415,7 @@ Ocp-Apim-Subscription-Key: {your-key}
     }
   ]
 }</code></pre>
-<p><strong>Understanding the Response</strong>:</p>
+<p><strong>Understanding the Response:</strong></p>
 <ul>
 <li>The text matched a custom blocklist item ("idiot")</li>
 <li>Hate speech severity is 2 (minimal - "idiot" is rude but not severe hate speech)</li>
@@ -2181,7 +2424,7 @@ Ocp-Apim-Subscription-Key: {your-key}
 </ul>
 <p>Your application would typically block or flag this content due to the high self-harm severity.</p>
 <h3 id="python-sdk-implementation">Python SDK Implementation</h3>
-<p><strong>Basic Text Analysis</strong>:</p>
+<p><strong>Basic Text Analysis:</strong></p>
 <pre><code class="language-python">from azure.ai.contentsafety import ContentSafetyClient
 from azure.ai.contentsafety.models import AnalyzeTextOptions
 from azure.core.credentials import AzureKeyCredential
@@ -2206,7 +2449,7 @@ for category_analysis in response.categories_analysis:
         print(&quot;BLOCKED: Hate speech detected&quot;)
     elif category_analysis.category == &quot;SelfHarm&quot; and category_analysis.severity &gt;= 3:
         print(&quot;BLOCKED: Self-harm content detected&quot;)</code></pre>
-<p><strong>Implementing Moderation Decision Logic</strong>:</p>
+<p><strong>Implementing Moderation Decision Logic:</strong></p>
 <pre><code class="language-python">def moderate_content(text, thresholds):
     &quot;&quot;&quot;
     Moderates content based on configurable thresholds.
@@ -2261,7 +2504,7 @@ print(f&quot;Decision: {result[&#x27;decision&#x27;]}&quot;)
 print(f&quot;Reason: {result[&#x27;reason&#x27;]}&quot;)</code></pre>
 <h3 id="analyzing-images-for-harmful-content">Analyzing Images for Harmful Content</h3>
 <p>Content Safety also analyzes images for harmful visual content using the same four categories.</p>
-<p><strong>REST API - Image Analysis</strong>:</p>
+<p><strong>REST API - Image Analysis:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/contentsafety/image:analyze?api-version=2023-10-01
 Content-Type: application/json
 Ocp-Apim-Subscription-Key: {your-key}
@@ -2273,7 +2516,7 @@ Ocp-Apim-Subscription-Key: {your-key}
   &quot;categories&quot;: [&quot;Hate&quot;, &quot;SelfHarm&quot;, &quot;Sexual&quot;, &quot;Violence&quot;],
   &quot;outputType&quot;: &quot;FourSeverityLevels&quot;
 }</code></pre>
-<p><strong>Python SDK - Image Analysis</strong>:</p>
+<p><strong>Python SDK - Image Analysis:</strong></p>
 <pre><code class="language-python">from azure.ai.contentsafety.models import AnalyzeImageOptions, ImageData
 import base64
 
@@ -2297,14 +2540,14 @@ for analysis in response.categories_analysis:
         print(f&quot;WARNING: Image contains {analysis.category} content&quot;)</code></pre>
 <h3 id="custom-blocklists-advanced-content-moderation">Custom Blocklists - Advanced Content Moderation</h3>
 <p>Custom blocklists allow you to define specific terms, phrases, or patterns that should be blocked beyond the AI model's general detection. This addresses domain-specific moderation needs.</p>
-<p><strong>Use Cases for Custom Blocklists</strong>:</p>
+<p><strong>Use Cases for Custom Blocklists:</strong></p>
 <ul>
 <li>Company-specific profanity policies (words you consider inappropriate that aren't generally offensive)</li>
 <li>Competitor brand names you don't want mentioned in user content</li>
 <li>Specific phrases that violate your terms of service</li>
 <li>Domain-specific terminology that is problematic in your context</li>
 </ul>
-<p><strong>Creating and Managing Blocklists</strong>:</p>
+<p><strong>Creating and Managing Blocklists:</strong></p>
 <pre><code class="language-python"># Create a blocklist
 blocklist_name = &quot;company_terms_blocklist&quot;
 blocklist_description = &quot;Terms specific to our community standards&quot;
@@ -2341,7 +2584,7 @@ if response.blocklists_match:
         print(f&quot;Blocked term found: {match.blocklist_item_text}&quot;)
         print(f&quot;From blocklist: {match.blocklist_name}&quot;)</code></pre>
 <h3 id="when-to-use-content-safety-exam-decision-framework">When to Use Content Safety - Exam Decision Framework</h3>
-<p><strong>Use Content Safety When</strong>:</p>
+<p><strong>Use Content Safety When:</strong></p>
 <ul>
 <li>✅ Application accepts user-generated content (posts, comments, uploads)</li>
 <li>✅ Need to moderate content at scale (thousands/millions of items daily)</li>
@@ -2350,47 +2593,49 @@ if response.blocklists_match:
 <li>✅ Need to comply with regulations around harmful content (especially for minors)</li>
 <li>✅ Want to detect content before storing or displaying it</li>
 </ul>
-<p><strong>Content Safety Is NOT Required When</strong>:</p>
+<p><strong>Content Safety Is NOT Required When:</strong></p>
 <ul>
 <li>Applications only display curated content (no user uploads)</li>
 <li>Content comes from trusted, pre-moderated sources</li>
 <li>Manual human moderation is feasible and sufficient (very low volume)</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario Example</strong>:</p></div>
+<div class="tip-box">
+<p><strong>Exam Scenario Example:</strong></p>
 <p><em>"You are building a social platform where users can post text and images. The platform serves users globally including minors. Regulatory requirements mandate detecting and blocking harmful content. What service should you use?"</em></p>
-<p><strong>Answer</strong>: Azure AI Content Safety. The scenario explicitly mentions user-generated content, minors (requiring strict moderation), and regulatory requirements for harmful content detection. Configure Content Safety with strict thresholds given the minor population, analyze both text and images before storing/displaying, and implement human review workflows for borderline content (severity 3-4).</p>
+<p><strong>Answer:</strong> Azure AI Content Safety. The scenario explicitly mentions user-generated content, minors (requiring strict moderation), and regulatory requirements for harmful content detection. Configure Content Safety with strict thresholds given the minor population, analyze both text and images before storing/displaying, and implement human review workflows for borderline content (severity 3-4).</p>
+</div>
 <section id="22-anomaly-detector-service-comprehensive-understanding"><h2>2.2 Anomaly Detector Service - Comprehensive Understanding</h2>
 <h3 id="what-is-anomaly-detector-and-why-does-it-exist">What Is Anomaly Detector and Why Does It Exist?</h3>
 <p>Anomaly Detector identifies unusual patterns in time-series data using machine learning. The service solves a fundamental problem: detecting anomalies in metrics is critical for applications, infrastructure, and business operations, but defining what constitutes "unusual" is challenging when normal patterns vary over time and include trends, seasonality, and complex patterns.</p>
-<p><strong>The Problem Anomaly Detector Solves</strong>: Traditional monitoring uses static thresholds (alert if CPU exceeds eighty percent, alert if sales drop below one hundred units). These approaches fail because normal patterns vary - website traffic might be high on weekends, sales have seasonal patterns, server load varies by time of day. Static thresholds generate false alarms when variation is normal or miss true anomalies that fall within normal ranges at the wrong time.</p>
-<p><strong>How Anomaly Detector Works Conceptually</strong>: The service analyzes historical time-series data to learn normal patterns including trends (gradual increase/decrease over time), seasonality (recurring patterns like daily or weekly cycles), and normal variance ranges. When analyzing new data points, it determines if they deviate significantly from expected patterns given the learned behavior. Anomalies are flagged when values are statistically improbable given the historical context.</p>
-<p><strong>Key Insight</strong>: Anomaly Detector adapts to your data automatically. You do not manually configure what is normal - the service learns from the data you provide. This makes it powerful for diverse use cases from server monitoring to business metrics to IoT sensor data.</p>
+<p><strong>The Problem Anomaly Detector Solves:</strong> Traditional monitoring uses static thresholds (alert if CPU exceeds eighty percent, alert if sales drop below one hundred units). These approaches fail because normal patterns vary - website traffic might be high on weekends, sales have seasonal patterns, server load varies by time of day. Static thresholds generate false alarms when variation is normal or miss true anomalies that fall within normal ranges at the wrong time.</p>
+<p><strong>How Anomaly Detector Works Conceptually:</strong> The service analyzes historical time-series data to learn normal patterns including trends (gradual increase/decrease over time), seasonality (recurring patterns like daily or weekly cycles), and normal variance ranges. When analyzing new data points, it determines if they deviate significantly from expected patterns given the learned behavior. Anomalies are flagged when values are statistically improbable given the historical context.</p>
+<p><strong>Key Insight:</strong> Anomaly Detector adapts to your data automatically. You do not manually configure what is normal - the service learns from the data you provide. This makes it powerful for diverse use cases from server monitoring to business metrics to IoT sensor data.</p>
 <h3 id="univariate-vs-multivariate-anomaly-detection">Univariate vs Multivariate Anomaly Detection</h3>
 <p>Anomaly Detector supports two modes that address different use cases. Understanding when to use each is critical for the exam.</p>
-<p><strong>Univariate Anomaly Detection</strong>: Analyzes a single metric over time. You provide a time series of values (website traffic per hour, temperature readings per minute, sales per day), and the service identifies points that are anomalous for that single metric.</p>
-<p><strong>When to Use Univariate</strong>:</p>
+<p><strong>Univariate Anomaly Detection:</strong> Analyzes a single metric over time. You provide a time series of values (website traffic per hour, temperature readings per minute, sales per day), and the service identifies points that are anomalous for that single metric.</p>
+<p><strong>When to Use Univariate:</strong></p>
 <ul>
 <li>Monitoring single metrics (CPU usage, request count, temperature)</li>
 <li>Each metric is independently meaningful</li>
 <li>Simple anomaly detection needs</li>
 </ul>
-<div class="tip-box"><p><strong>Example Univariate Use Case</strong>: Detecting unusual spikes in API request volume. You track requests per minute and want to alert when volume deviates significantly from normal patterns accounting for time-of-day and day-of-week variations.</p></div>
-<p><strong>Multivariate Anomaly Detection</strong>: Analyzes multiple related metrics simultaneously and detects anomalies in the relationships between metrics. You provide multiple time series that are related (CPU, memory, disk I/O, network traffic), and the service identifies when the pattern across all metrics is unusual, even if individual metrics are within normal ranges.</p>
-<p><strong>When to Use Multivariate</strong>:</p>
+<div class="tip-box"><p><strong>Example Univariate Use Case:</strong> Detecting unusual spikes in API request volume. You track requests per minute and want to alert when volume deviates significantly from normal patterns accounting for time-of-day and day-of-week variations.</p></div>
+<p><strong>Multivariate Anomaly Detection:</strong> Analyzes multiple related metrics simultaneously and detects anomalies in the relationships between metrics. You provide multiple time series that are related (CPU, memory, disk I/O, network traffic), and the service identifies when the pattern across all metrics is unusual, even if individual metrics are within normal ranges.</p>
+<p><strong>When to Use Multivariate:</strong></p>
 <ul>
 <li>Monitoring complex systems with interdependent metrics</li>
 <li>Anomalies manifest as unusual patterns across multiple metrics</li>
 <li>Need to detect subtle issues that wouldn't appear in single metrics</li>
 </ul>
-<div class="tip-box"><p><strong>Example Multivariate Use Case</strong>: Detecting equipment failures in manufacturing. A machine might have normal temperature, pressure, vibration individually, but the combination of slightly elevated temperature with decreased pressure and increased vibration indicates early bearing failure. Univariate detection would miss this because each metric alone is within acceptable range.</p></div>
-<div class="tip-box"><p><strong>Exam Decision Criteria</strong>:</p></div>
+<div class="tip-box"><p><strong>Example Multivariate Use Case:</strong> Detecting equipment failures in manufacturing. A machine might have normal temperature, pressure, vibration individually, but the combination of slightly elevated temperature with decreased pressure and increased vibration indicates early bearing failure. Univariate detection would miss this because each metric alone is within acceptable range.</p></div>
+<div class="tip-box"><p><strong>Exam Decision Criteria:</strong></p></div>
 <ul>
 <li>Question mentions "single metric," "one variable," or "individual measurement" → Univariate</li>
 <li>Question mentions "multiple metrics," "relationships between variables," "correlated data," or "complex system" → Multivariate</li>
 <li>Question describes detecting issues that appear across multiple measurements → Multivariate</li>
 </ul>
 <h3 id="univariate-anomaly-detection-implementation">Univariate Anomaly Detection - Implementation</h3>
-<p><strong>REST API - Detect Entire Series</strong>:</p>
+<p><strong>REST API - Detect Entire Series:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/anomalydetector/v1.1/timeseries/entire/detect
 Content-Type: application/json
 Ocp-Apim-Subscription-Key: {your-key}
@@ -2406,7 +2651,7 @@ Ocp-Apim-Subscription-Key: {your-key}
   &quot;sensitivity&quot;: 95,
   &quot;maxAnomalyRatio&quot;: 0.25
 }</code></pre>
-<p><strong>Response Example</strong>:</p>
+<p><strong>Response Example:</strong></p>
 <pre><code class="language-json">{
   &quot;period&quot;: 24,
   &quot;expectedValues&quot;: [100.2, 105.0, 103.5, 102.0],
@@ -2417,18 +2662,18 @@ Ocp-Apim-Subscription-Key: {your-key}
   &quot;isPositiveAnomaly&quot;: [false, false, true, false],
   &quot;severity&quot;: [0, 0, 0.85, 0]
 }</code></pre>
-<p><strong>Understanding the Response</strong>:</p>
+<p><strong>Understanding the Response:</strong></p>
 <ul>
-<li><strong>period</strong>: Detected seasonality (24 = daily pattern for hourly data)</li>
-<li><strong>expectedValues</strong>: What the model predicted for each point</li>
-<li><strong>upperMargins/lowerMargins</strong>: Acceptable deviation range</li>
-<li><strong>isAnomaly</strong>: Boolean array indicating anomalies</li>
-<li><strong>isPositiveAnomaly</strong>: Anomaly is above expected (spike)</li>
-<li><strong>isNegativeAnomaly</strong>: Anomaly is below expected (drop)</li>
-<li><strong>severity</strong>: How anomalous (0-1 scale)</li>
+<li><strong>period:</strong> Detected seasonality (24 = daily pattern for hourly data)</li>
+<li><strong>expectedValues:</strong> What the model predicted for each point</li>
+<li><strong>upperMargins/lowerMargins:</strong> Acceptable deviation range</li>
+<li><strong>isAnomaly:</strong> Boolean array indicating anomalies</li>
+<li><strong>isPositiveAnomaly:</strong> Anomaly is above expected (spike)</li>
+<li><strong>isNegativeAnomaly:</strong> Anomaly is below expected (drop)</li>
+<li><strong>severity:</strong> How anomalous (0-1 scale)</li>
 </ul>
 <p>In this example, the third data point (503.8) is flagged as a positive anomaly with high severity because it deviates significantly from the expected 103.5.</p>
-<p><strong>Python SDK - Batch Detection</strong>:</p>
+<p><strong>Python SDK - Batch Detection:</strong></p>
 <pre><code class="language-python">from azure.ai.anomalydetector import AnomalyDetectorClient
 from azure.ai.anomalydetector.models import DetectRequest, TimeSeriesPoint, TimeGranularity
 from azure.core.credentials import AzureKeyCredential
@@ -2474,7 +2719,7 @@ for idx, (is_anomaly, severity) in enumerate(zip(response.is_anomaly, response.s
         print(f&quot;  Actual: {actual_value}, Expected: {expected_value}&quot;)
         print(f&quot;  Severity: {severity:.2f}&quot;)
         print(f&quot;  Type: {&#x27;Spike&#x27; if response.is_positive_anomaly[idx] else &#x27;Drop&#x27;}&quot;)</code></pre>
-<p><strong>Streaming Anomaly Detection (Real-Time)</strong>:</p>
+<p><strong>Streaming Anomaly Detection (Real-Time):</strong></p>
 <p>For real-time monitoring where you receive data points continuously, use the "detect last point" API that analyzes just the latest point in context of historical data.</p>
 <pre><code class="language-python">from azure.ai.anomalydetector.models import DetectRequest
 
@@ -2512,28 +2757,28 @@ if response.is_anomaly:
     )</code></pre>
 <h3 id="sensitivity-parameter-critical-understanding">Sensitivity Parameter - Critical Understanding</h3>
 <p>The sensitivity parameter (0-99) controls how strict anomaly detection is. This is frequently tested on the exam.</p>
-<p><strong>High Sensitivity (80-99)</strong>:</p>
+<p><strong>High Sensitivity (80-99):</strong></p>
 <ul>
 <li>Detects more anomalies (more sensitive to deviations)</li>
 <li>Higher false positive rate (normal variations flagged as anomalies)</li>
 <li>Use when missing anomalies is costly (safety-critical systems, fraud detection)</li>
 </ul>
-<p><strong>Medium Sensitivity (50-79)</strong>:</p>
+<p><strong>Medium Sensitivity (50-79):</strong></p>
 <ul>
 <li>Balanced detection (moderate false positive/negative rates)</li>
 <li>Use for general monitoring where some missed anomalies are acceptable</li>
 </ul>
-<p><strong>Low Sensitivity (0-49)</strong>:</p>
+<p><strong>Low Sensitivity (0-49):</strong></p>
 <ul>
 <li>Detects only clear, significant anomalies</li>
 <li>Lower false positive rate (fewer false alarms)</li>
 <li>Use when alert fatigue is a concern, only want obvious anomalies</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario</strong>: <em>"Your IoT sensors sometimes have normal measurement variations due to environmental factors. You want to detect only significant equipment failures. What sensitivity should you use?"</em></p></div>
-<p><strong>Answer</strong>: Low sensitivity (30-40 range). The scenario indicates normal variation is expected and you only want clear anomalies (equipment failures), suggesting you should reduce false alarms from normal variation.</p>
+<div class="tip-box"><p><strong>Exam Scenario:</strong> <em>"Your IoT sensors sometimes have normal measurement variations due to environmental factors. You want to detect only significant equipment failures. What sensitivity should you use?"</em></p></div>
+<p><strong>Answer:</strong> Low sensitivity (30-40 range). The scenario indicates normal variation is expected and you only want clear anomalies (equipment failures), suggesting you should reduce false alarms from normal variation.</p>
 <h3 id="multivariate-anomaly-detection-advanced-implementation">Multivariate Anomaly Detection - Advanced Implementation</h3>
 <p>Multivariate detection analyzes multiple metrics together to find anomalies in their relationships and patterns.</p>
-<p><strong>Training a Multivariate Model</strong>:</p>
+<p><strong>Training a Multivariate Model:</strong></p>
 <pre><code class="language-python">from azure.ai.anomalydetector.models import ModelInfo, DataSchema
 from datetime import datetime
 
@@ -2568,7 +2813,7 @@ while True:
         break
     
     time.sleep(30)  # Check every 30 seconds</code></pre>
-<p><strong>Using Multivariate Model for Detection</strong>:</p>
+<p><strong>Using Multivariate Model for Detection:</strong></p>
 <pre><code class="language-python"># Define detection data source
 detection_request = {
     &quot;source&quot;: &quot;https://mystorageaccount.blob.core.windows.net/detection-data/&quot;,
@@ -2600,7 +2845,7 @@ while True:
         break
     
     time.sleep(10)</code></pre>
-<p><strong>Data Format for Multivariate Detection</strong>:</p>
+<p><strong>Data Format for Multivariate Detection:</strong></p>
 <p>Your data in Azure Blob Storage should be CSV files with structure:</p>
 <pre><code class="language-csv">timestamp,cpu_usage,memory_usage,disk_io,network_traffic
 2024-01-01T00:00:00Z,45.2,68.5,120.3,850.2
@@ -2608,7 +2853,7 @@ while True:
 ...</code></pre>
 <p>Each row is a timestamp with values for all metrics. The service learns the normal relationships between these metrics and detects when patterns deviate.</p>
 <h3 id="when-to-use-anomaly-detector-exam-decision-framework">When to Use Anomaly Detector - Exam Decision Framework</h3>
-<p><strong>Use Anomaly Detector When</strong>:</p>
+<p><strong>Use Anomaly Detector When:</strong></p>
 <ul>
 <li>✅ Need to detect unusual patterns in time-series data</li>
 <li>✅ Normal patterns vary (seasonality, trends)</li>
@@ -2616,16 +2861,18 @@ while True:
 <li>✅ Applications: monitoring metrics, fraud detection, equipment failure prediction, business metric alerting</li>
 <li>✅ Have sufficient historical data (minimum 12 points for univariate, typically hundreds for accurate multivariate models)</li>
 </ul>
-<p><strong>Do NOT Use Anomaly Detector When</strong>:</p>
+<p><strong>Do NOT Use Anomaly Detector When:</strong></p>
 <ul>
 <li>Static thresholds work fine (simple limits that don't change)</li>
 <li>Not time-series data (individual values without temporal relationship)</li>
 <li>Insufficient historical data (cannot learn patterns from 5 data points)</li>
 <li>Real-time decision needed on single value without historical context</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario Example</strong>:</p></div>
+<div class="tip-box">
+<p><strong>Exam Scenario Example:</strong></p>
 <p><em>"Your company monitors server CPU, memory, disk I/O, and network metrics. Servers sometimes have high CPU with low memory (normal for compute workloads) or low CPU with high disk I/O (normal for data workloads). You need to detect when the overall pattern indicates a problem. What should you use?"</em></p>
-<p><strong>Answer</strong>: Multivariate Anomaly Detector. The scenario describes multiple related metrics where anomalies appear in relationships between metrics, not individual thresholds. Train a multivariate model on historical server metrics, then use it to detect when the pattern across all four metrics deviates from learned normal behavior.</p>
+<p><strong>Answer:</strong> Multivariate Anomaly Detector. The scenario describes multiple related metrics where anomalies appear in relationships between metrics, not individual thresholds. Train a multivariate model on historical server metrics, then use it to detect when the pattern across all four metrics deviates from learned normal behavior.</p>
+</div>
 <hr>
 <p>This completes Section 2. Now I'll continue with Section 3 (Vision Solutions), Section 4 (NLP - the largest section), Section 5 (Knowledge Mining), and Section 6 (Generative AI). Would you like me to continue adding these sections now?</p>
 <section id="section-3-implement-azure-ai-vision-solutions-15-20"><h1>SECTION 3: IMPLEMENT AZURE AI VISION SOLUTIONS (15-20%)</h1>
@@ -2633,21 +2880,21 @@ while True:
 <section id="31-computer-vision-service-comprehensive-understanding"><h2>3.1 Computer Vision Service - Comprehensive Understanding</h2>
 <h3 id="what-is-computer-vision-and-what-problems-does-it-solve">What Is Computer Vision and What Problems Does It Solve?</h3>
 <p>Azure Computer Vision provides general-purpose image analysis capabilities trained on millions of images. The service solves the fundamental challenge of making sense of visual content programmatically without requiring computer vision expertise or infrastructure.</p>
-<p><strong>Core Capabilities Overview</strong>:</p>
+<p><strong>Core Capabilities Overview:</strong></p>
 <ul>
-<li><strong>Object Detection</strong>: Identify and locate objects within images</li>
-<li><strong>Tagging</strong>: Generate descriptive tags for image content</li>
-<li><strong>Image Captioning</strong>: Create natural language descriptions of images</li>
-<li><strong>OCR (Read API)</strong>: Extract text from images and documents  </li>
-<li><strong>Adult Content Detection</strong>: Identify potentially inappropriate content</li>
-<li><strong>Celebrity/Landmark Recognition</strong>: Identify known people and places</li>
-<li><strong>Color Analysis</strong>: Extract dominant colors and determine if image is black/white</li>
-<li><strong>Face Detection</strong>: Locate faces (basic detection, not identification)</li>
+<li><strong>Object Detection:</strong> Identify and locate objects within images</li>
+<li><strong>Tagging:</strong> Generate descriptive tags for image content</li>
+<li><strong>Image Captioning:</strong> Create natural language descriptions of images</li>
+<li><strong>OCR (Read API):</strong> Extract text from images and documents  </li>
+<li><strong>Adult Content Detection:</strong> Identify potentially inappropriate content</li>
+<li><strong>Celebrity/Landmark Recognition:</strong> Identify known people and places</li>
+<li><strong>Color Analysis:</strong> Extract dominant colors and determine if image is black/white</li>
+<li><strong>Face Detection:</strong> Locate faces (basic detection, not identification)</li>
 </ul>
 <p>The service handles diverse image types, sizes, and qualities, making it suitable for everything from social media content analysis to document processing to accessibility features.</p>
 <h3 id="when-to-use-computer-vision-vs-custom-vision-vs-face-api">When to Use Computer Vision vs Custom Vision vs Face API</h3>
 <p>This decision framework appears frequently on the exam. Understanding the boundaries between services is critical.</p>
-<p><strong>Use Computer Vision When</strong>:</p>
+<p><strong>Use Computer Vision When:</strong></p>
 <ul>
 <li>Need general object detection (cars, trees, buildings, animals - common objects)</li>
 <li>Generating accessibility descriptions for images</li>
@@ -2656,23 +2903,23 @@ while True:
 <li>Detecting presence of faces (not identifying who they are)</li>
 <li>Processing diverse image types without domain-specific needs</li>
 </ul>
-<p><strong>Use Custom Vision Instead When</strong>:</p>
+<p><strong>Use Custom Vision Instead When:</strong></p>
 <ul>
 <li>Detecting domain-specific objects Computer Vision doesn't recognize (company products, specific equipment, medical conditions, logos, manufacturing defects)</li>
 <li>Need higher accuracy for specific visual categories than general models provide</li>
 <li>Willing to provide training images and train custom models</li>
 </ul>
-<p><strong>Use Face API Instead When</strong>:</p>
+<p><strong>Use Face API Instead When:</strong></p>
 <ul>
 <li>Need face verification (is this the same person?)</li>
 <li>Need face identification (who is this person from a known group?)</li>
 <li>Analyzing facial features, emotions, or attributes in detail</li>
 <li>Building identity verification systems</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Tip</strong>: If question mentions "common objects," "general image analysis," or "accessibility," choose Computer Vision. If it mentions "company-specific items," "specialized recognition," or "custom categories," choose Custom Vision. If it specifically mentions "facial recognition" or "identity verification," choose Face API.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> If question mentions "common objects," "general image analysis," or "accessibility," choose Computer Vision. If it mentions "company-specific items," "specialized recognition," or "custom categories," choose Custom Vision. If it specifically mentions "facial recognition" or "identity verification," choose Face API.</p></div>
 <h3 id="computer-vision-rest-api-analyze-image">Computer Vision REST API - Analyze Image</h3>
 <p>The Analyze Image API is the primary Computer Vision operation, providing multiple analysis features in one call.</p>
-<p><strong>REST API Structure</strong>:</p>
+<p><strong>REST API Structure:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/vision/v3.2/analyze?visualFeatures={features}&amp;details={details}&amp;language={lang}
 Content-Type: application/json
 Ocp-Apim-Subscription-Key: {your-key}
@@ -2702,7 +2949,7 @@ Content-Type: application/octet-stream
 <li><code>Celebrities</code> - Identify known public figures</li>
 <li><code>Landmarks</code> - Identify famous landmarks</li>
 </ul>
-<p><strong>Complete Example</strong>:</p>
+<p><strong>Complete Example:</strong></p>
 <pre><code class="language-bash">POST https://mycomputervision.cognitiveservices.azure.com/vision/v3.2/analyze?visualFeatures=Objects,Tags,Description,Faces&amp;details=Landmarks&amp;language=en
 Ocp-Apim-Subscription-Key: abc123xyz789
 Content-Type: application/json
@@ -2817,7 +3064,7 @@ if result.read:
             # Each line contains individual words with bounding boxes
             for word in line.words:
                 print(f&quot;    Word: &#x27;{word.text}&#x27; (confidence: {word.confidence:.2%})&quot;)</code></pre>
-<p><strong>Analyzing Local Images</strong>:</p>
+<p><strong>Analyzing Local Images:</strong></p>
 <pre><code class="language-python"># Read image from file
 with open(&quot;local_image.jpg&quot;, &quot;rb&quot;) as f:
     image_data = f.read()
@@ -2831,11 +3078,11 @@ result = client.analyze(
 print(f&quot;Local image analysis: {result.caption.text}&quot;)</code></pre>
 <h3 id="adult-content-detection-important-use-case">Adult Content Detection - Important Use Case</h3>
 <p>Detecting adult, racy, or gory content is critical for user-generated content platforms.</p>
-<p><strong>Content Categories</strong>:</p>
+<p><strong>Content Categories:</strong></p>
 <ul>
-<li><strong>Adult</strong>: Explicitly sexual or pornographic content</li>
-<li><strong>Racy</strong>: Sexually suggestive but not explicitly pornographic</li>
-<li><strong>Gory</strong>: Graphic violence, blood, gore</li>
+<li><strong>Adult:</strong> Explicitly sexual or pornographic content</li>
+<li><strong>Racy:</strong> Sexually suggestive but not explicitly pornographic</li>
+<li><strong>Gory:</strong> Graphic violence, blood, gore</li>
 </ul>
 <pre><code class="language-python"># Analyze for adult content
 result = client.analyze_from_url(
@@ -2876,10 +3123,10 @@ if hasattr(result, &#x27;adult&#x27;):
 <li>Lower accuracy</li>
 <li>Being phased out</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Tip</strong>: Always use Read API for OCR scenarios. Legacy OCR is deprecated.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> Always use Read API for OCR scenarios. Legacy OCR is deprecated.</p></div>
 <h3 id="read-api-complete-workflow">Read API - Complete Workflow</h3>
 <p>The Read API is asynchronous: submit document, receive operation ID, poll for results.</p>
-<p><strong>Step 1: Submit Document for Reading</strong>:</p>
+<p><strong>Step 1: Submit Document for Reading:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/vision/v3.2/read/analyze?language=en&amp;pages=1-3
 Ocp-Apim-Subscription-Key: {your-key}
 Content-Type: application/json
@@ -2891,7 +3138,7 @@ Content-Type: application/json
 # Response: 
 HTTP/1.1 202 Accepted
 Operation-Location: https://{endpoint}/vision/v3.2/read/analyzeResults/{operationId}</code></pre>
-<p><strong>Step 2: Poll for Results</strong>:</p>
+<p><strong>Step 2: Poll for Results:</strong></p>
 <pre><code class="language-bash">GET https://{endpoint}/vision/v3.2/read/analyzeResults/{operationId}
 Ocp-Apim-Subscription-Key: {your-key}
 
@@ -2991,7 +3238,7 @@ if result.status == &#x27;succeeded&#x27;:
 else:
     print(f&quot;OCR failed: {result.status}&quot;)</code></pre>
 <h3 id="ocr-best-practices-and-optimization">OCR Best Practices and Optimization</h3>
-<p><strong>Image Quality Recommendations</strong>:</p>
+<p><strong>Image Quality Recommendations:</strong></p>
 <ul>
 <li>Minimum resolution: 50x50 pixels</li>
 <li>Maximum size: 50 MB</li>
@@ -2999,7 +3246,7 @@ else:
 <li>Clear, high-contrast text works best</li>
 <li>Avoid heavy compression that creates artifacts</li>
 </ul>
-<p><strong>Performance Optimization</strong>:</p>
+<p><strong>Performance Optimization:</strong></p>
 <pre><code class="language-python"># For large documents, specify pages to process
 result = client.read(
     url=&quot;https://example.com/200-page-document.pdf&quot;,
@@ -3008,14 +3255,14 @@ result = client.read(
 )
 
 # This reduces processing time and cost when you don&#x27;t need all pages</code></pre>
-<p><strong>Language Support</strong>:</p>
+<p><strong>Language Support:</strong></p>
 <ul>
 <li>Specify language when known for better accuracy</li>
 <li>Read API auto-detects if not specified</li>
 <li>Supports 100+ languages including handwriting in English, Chinese, Japanese</li>
 </ul>
-<div class="tip-box"><p><strong>Exam Scenario</strong>: <em>"You need to extract text from scanned medical records containing both printed and handwritten notes. Documents are multi-page PDFs. What service should you use?"</em></p></div>
-<p><strong>Answer</strong>: Computer Vision Read API. It handles multi-page PDFs, supports both printed and handwritten text, and provides asynchronous processing suitable for large documents.</p>
+<div class="tip-box"><p><strong>Exam Scenario:</strong> <em>"You need to extract text from scanned medical records containing both printed and handwritten notes. Documents are multi-page PDFs. What service should you use?"</em></p></div>
+<p><strong>Answer:</strong> Computer Vision Read API. It handles multi-page PDFs, supports both printed and handwritten text, and provides asynchronous processing suitable for large documents.</p>
 <section id="ai-102-ultimate-study-guide-part-2"><h1>AI-102 Ultimate Study Guide - Part 2</h1>
 <section id="sections-3-6-vision-nlp-knowledge-mining-and-generative-ai"><h2>Sections 3-6: Vision, NLP, Knowledge Mining, and Generative AI</h2>
 <p><strong>Use this guide in combination with Part 1 (AI-102_Ultimate_Study_Guide.md)</strong></p>
@@ -3025,35 +3272,35 @@ result = client.read(
 <section id="33-custom-vision-when-general-models-arent-enough"><h2>3.3 Custom Vision - When General Models Aren't Enough</h2>
 <p>Custom Vision enables training image classification and object detection models on your own labeled data. Use this when Computer Vision's general models don't recognize your specific visual categories.</p>
 <h3 id="classification-vs-object-detection">Classification vs Object Detection</h3>
-<p><strong>Image Classification</strong>: Assigns labels to entire images</p>
+<p><strong>Image Classification:</strong> Assigns labels to entire images</p>
 <ul>
 <li>"This image contains a dog"</li>
 <li>"This X-ray shows pneumonia"  </li>
 <li>"This product is defective"</li>
 <li>Returns: Label + confidence score</li>
 </ul>
-<p><strong>Object Detection</strong>: Identifies objects AND their locations with bounding boxes</p>
+<p><strong>Object Detection:</strong> Identifies objects AND their locations with bounding boxes</p>
 <ul>
 <li>"There is a dog at coordinates (120,80) and a cat at (450,200)"</li>
 <li>"Two tumors detected at these locations in the scan"</li>
 <li>"Three defects found at these positions on the product"</li>
 <li>Returns: Label + confidence + bounding box coordinates</li>
 </ul>
-<p><strong>Decision Framework</strong>:</p>
+<p><strong>Decision Framework:</strong></p>
 <ul>
 <li>Need to know IF something is in image → Classification</li>
 <li>Need to know WHERE things are in image → Object Detection</li>
 <li>Need to count multiple instances → Object Detection</li>
 </ul>
 <h3 id="training-custom-vision-models-complete-workflow">Training Custom Vision Models - Complete Workflow</h3>
-<p><strong>Prerequisites</strong>:</p>
+<p><strong>Prerequisites:</strong></p>
 <ul>
 <li>Minimum 30-50 images per category for classification</li>
 <li>Minimum 50-100 images per class for object detection</li>
 <li>Images should show variety (angles, lighting, backgrounds)</li>
 <li>More images = better accuracy</li>
 </ul>
-<p><strong>REST API - Create Project</strong>:</p>
+<p><strong>REST API - Create Project:</strong></p>
 <pre><code class="language-bash">POST https://{endpoint}/customvision/v3.3/Training/projects
 Training-Key: {your-training-key}
 Content-Type: application/json
@@ -3064,7 +3311,7 @@ Content-Type: application/json
   &quot;classificationType&quot;: &quot;Multiclass&quot;,  # or &quot;Multilabel&quot;
   &quot;domainId&quot;: &quot;{domain-id-for-general-or-specific-domain}&quot;
 }</code></pre>
-<p><strong>Python SDK - Complete Training Workflow</strong>:</p>
+<p><strong>Python SDK - Complete Training Workflow:</strong></p>
 <pre><code class="language-python">from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
 from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateBatch, ImageFileCreateEntry, Region
 from msrest.authentication import ApiKeyCredentials
@@ -3196,7 +3443,7 @@ for detection in results.predictions:
         print(f&quot;  Location: ({detection.bounding_box.left}, {detection.bounding_box.top})&quot;)
         print(f&quot;  Size: {detection.bounding_box.width} x {detection.bounding_box.height}&quot;)</code></pre>
 <h3 id="improving-model-accuracy">Improving Model Accuracy</h3>
-<p><strong>Iterative Improvement Process</strong>:</p>
+<p><strong>Iterative Improvement Process:</strong></p>
 <ol>
 <li>Train initial model with minimum images (30-50 per category)</li>
 <li>Test on new images</li>
@@ -3221,24 +3468,24 @@ new_iteration = trainer.train_project(project.id)
 
 # Wait for training and publish updated model
 # (same process as initial training)</code></pre>
-<div class="tip-box"><p><strong>Exam Tip</strong>: Custom Vision requires iterative refinement. Initial accuracy might be 70-80%, improving to 90%+ with more diverse training images and feedback from misclassifications.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> Custom Vision requires iterative refinement. Initial accuracy might be 70-80%, improving to 90%+ with more diverse training images and feedback from misclassifications.</p></div>
 <hr>
 <section id="34-face-api-identity-verification-critical-limited-access-required"><h2>3.4 Face API - Identity Verification (CRITICAL: Limited Access Required)</h2>
-<div class="tip-box"><p><strong>IMPORTANT EXAM KNOWLEDGE</strong>: Face API's identification and verification features require Microsoft's Limited Access approval. You must apply and demonstrate legitimate use case. Face detection features are available without approval.</p></div>
+<div class="tip-box"><p><strong>IMPORTANT EXAM KNOWLEDGE:</strong> Face API's identification and verification features require Microsoft's Limited Access approval. You must apply and demonstrate legitimate use case. Face detection features are available without approval.</p></div>
 <h3 id="face-detection-vs-verification-vs-identification">Face Detection vs Verification vs Identification</h3>
-<p><strong>Face Detection</strong>: Locate faces in images, extract attributes</p>
+<p><strong>Face Detection:</strong> Locate faces in images, extract attributes</p>
 <ul>
 <li>No approval needed</li>
 <li>Returns: face location, age estimate, gender, emotions, glasses, etc.</li>
 <li>Use for: counting people, analyzing demographics, detecting face presence</li>
 </ul>
-<p><strong>Face Verification</strong>: Compare two faces - are they the same person?</p>
+<p><strong>Face Verification:</strong> Compare two faces - are they the same person?</p>
 <ul>
 <li>Requires Limited Access approval</li>
 <li>Returns: confidence score that faces match</li>
 <li>Use for: identity verification (login, access control)</li>
 </ul>
-<p><strong>Face Identification</strong>: Who is this person from a known group?</p>
+<p><strong>Face Identification:</strong> Who is this person from a known group?</p>
 <ul>
 <li>Requires Limited Access approval  </li>
 <li>Returns: person ID and confidence from pre-enrolled group</li>
@@ -3252,7 +3499,7 @@ Ocp-Apim-Subscription-Key: {your-key}
 {
   &quot;url&quot;: &quot;https://example.com/photo.jpg&quot;
 }</code></pre>
-<p><strong>Response</strong>:</p>
+<p><strong>Response:</strong></p>
 <pre><code class="language-json">[
   {
     &quot;faceId&quot;: &quot;abc-123-def-456&quot;,
@@ -3341,11 +3588,11 @@ elif verify_result.confidence &gt; 0.5:
     print(&quot;POSSIBLE MATCH: Review needed&quot;)
 else:
     print(&quot;NOT A MATCH: Different people&quot;)</code></pre>
-<div class="tip-box"><p><strong>Exam Scenario</strong>: <em>"Your company needs to verify employee identity when accessing secure facilities by comparing their face to their employee ID photo. What Azure service should you use?"</em></p></div>
-<p><strong>Answer</strong>: Face API with face verification. This is a 1:1 comparison (employee's live photo vs stored ID photo) requiring face verification capability. Note: Requires Limited Access approval from Microsoft for production use.</p>
+<div class="tip-box"><p><strong>Exam Scenario:</strong> <em>"Your company needs to verify employee identity when accessing secure facilities by comparing their face to their employee ID photo. What Azure service should you use?"</em></p></div>
+<p><strong>Answer:</strong> Face API with face verification. This is a 1:1 comparison (employee's live photo vs stored ID photo) requiring face verification capability. Note: Requires Limited Access approval from Microsoft for production use.</p>
 <hr>
 <section id="section-4-natural-language-processing-30-35"><h1>SECTION 4: NATURAL LANGUAGE PROCESSING (30-35%)</h1>
-<div class="warning-box"><p><strong>CRITICAL</strong>: This is the HIGHEST WEIGHTED section of the exam. Expect 18-21 questions on NLP services. Master this section thoroughly.</p></div>
+<div class="warning-box"><p><strong>CRITICAL</strong> This is the HIGHEST WEIGHTED section of the exam. Expect 18-21 questions on NLP services. Master this section thoroughly.</p></div>
 <section id="41-azure-ai-language-text-analytics-comprehensive-coverage"><h2>4.1 Azure AI Language (Text Analytics) - Comprehensive Coverage</h2>
 <p>Text Analytics analyzes existing text for insights. Unlike CLU/LUIS which understand conversational intent, Text Analytics extracts information from any text.</p>
 <h3 id="core-capabilities-decision-matrix">Core Capabilities Decision Matrix</h3>
@@ -3430,7 +3677,7 @@ Ocp-Apim-Subscription-Key: {your-key}
     }
   ]
 }</code></pre>
-<p><strong>Response with Opinion Mining</strong>:</p>
+<p><strong>Response with Opinion Mining:</strong></p>
 <pre><code class="language-json">{
   &quot;documents&quot;: [
     {
@@ -3595,8 +3842,8 @@ for idx, doc in enumerate(result):
 <section id="42-speech-service-speech-recognition-and-synthesis"><h2>4.2 Speech Service - Speech Recognition and Synthesis</h2>
 <p>Speech services handle speech-to-text (recognition), text-to-speech (synthesis), and speech translation.</p>
 <h3 id="speech-to-text-recognition-complete-implementation">Speech-to-Text (Recognition) - Complete Implementation</h3>
-<p><strong>REST API - Not recommended for speech (use SDK)</strong>: Speech services primarily use WebSocket connections for real-time streaming, making SDK the standard approach.</p>
-<p><strong>Python SDK - Speech Recognition</strong>:</p>
+<p><strong>REST API - Not recommended for speech (use SDK):</strong> Speech services primarily use WebSocket connections for real-time streaming, making SDK the standard approach.</p>
+<p><strong>Python SDK - Speech Recognition:</strong></p>
 <pre><code class="language-python">import azure.cognitiveservices.speech as speechsdk
 
 # Configuration
@@ -3627,7 +3874,7 @@ elif result.reason == speechsdk.ResultReason.Canceled:
     print(f&quot;Recognition canceled: {cancellation.reason}&quot;)
     if cancellation.reason == speechsdk.CancellationReason.Error:
         print(f&quot;Error: {cancellation.error_details}&quot;)</code></pre>
-<p><strong>Continuous Recognition (for longer audio)</strong>:</p>
+<p><strong>Continuous Recognition (for longer audio):</strong></p>
 <pre><code class="language-python">import time
 
 def recognized_cb(evt):
@@ -3678,7 +3925,7 @@ if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
     print(&quot;Speech synthesized successfully&quot;)
 else:
     print(f&quot;Synthesis failed: {result.cancellation_details.reason}&quot;)</code></pre>
-<p id="ssml-for-advanced-speech-control"><strong>SSML for Advanced Speech Control</strong>:</p>
+<p id="ssml-for-advanced-speech-control"><strong>SSML for Advanced Speech Control:</strong></p>
 <pre><code class="language-python"># SSML allows controlling voice, speed, pitch, pauses, etc.
 ssml = &quot;&quot;&quot;
 &lt;speak version=&#x27;1.0&#x27; xmlns=&#x27;http://www.w3.org/2001/10/synthesis&#x27; xml:lang=&#x27;en-US&#x27;&gt;
@@ -3723,10 +3970,10 @@ if result.reason == speechsdk.ResultReason.TranslatedSpeech:
     print(&quot;\nTranslations:&quot;)
     for language, translation in result.translations.items():
         print(f&quot;  {language}: {translation}&quot;)</code></pre>
-<div class="tip-box"><p><strong>Exam Tip</strong>: Speech Translation combines speech-to-text + text translation in one service. Use this instead of calling Speech Service + Translator separately for audio translation.</p></div>
+<div class="tip-box"><p><strong>Exam Tip:</strong> Speech Translation combines speech-to-text + text translation in one service. Use this instead of calling Speech Service + Translator separately for audio translation.</p></div>
 <section id="43-translator-service"><h2>4.3 Translator Service</h2>
 <p>Azure Translator converts text between 100+ languages.</p>
-<p id="rest-api-translation"><strong>REST API</strong>:</p>
+<p id="rest-api-translation"><strong>REST API:</strong></p>
 <pre><code class="language-bash">POST https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&amp;to=es&amp;to=fr
 Ocp-Apim-Subscription-Key: {your-key}
 Ocp-Apim-Subscription-Region: {your-region}
@@ -3737,7 +3984,7 @@ Content-Type: application/json
     &quot;text&quot;: &quot;Hello, how are you?&quot;
   }
 ]</code></pre>
-<p id="python-sdk-translation"><strong>Python SDK</strong>:</p>
+<p id="python-sdk-translation"><strong>Python SDK:</strong></p>
 <pre><code class="language-python">from azure.ai.translation.text import TextTranslationClient
 from azure.core.credentials import AzureKeyCredential
 
@@ -4045,11 +4292,60 @@ embedding_vector = response.data[0].embedding
 <p>Best practice questions test security, monitoring, and cost optimization knowledge. Know when to use private endpoints, how to configure alerts, and when commitment pricing makes sense.</p>
 <hr>
 <p>This completes your comprehensive AI-102 study guide. You now have everything needed to pass the exam successfully. Review the TL;DR section for quick reference, practice the code examples to reinforce understanding, and work through the scenarios to prepare for question formats. Good luck on your exam!</p>
-</section>        </div>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+</section>
+        </div>
     </main>
 
     <!-- Back to Top Button -->
     <div class="back-to-top" onclick="scrollToTop()">↑</div>
+
+    <!-- Theme Toggle Button -->
+    <div class="theme-toggle" onclick="toggleTheme()" id="themeToggle" title="Toggle light/dark mode">
+        <span id="themeIcon">🌙</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-inner">© 2025 DotOne LLC. All rights reserved. <a href="https://www.dotonellc.com" style="color: #ffcc00; text-decoration: none;">www.dotonellc.com</a> | support@dotonellc.com</div>
+    </footer>
 
     <script>
         // Toggle sidebar sections
@@ -4062,11 +4358,17 @@ embedding_vector = response.data[0].embedding
                 element.classList.remove('collapsed');
                 subsections.setAttribute('aria-hidden', 'false');
                 element.setAttribute('aria-expanded', 'true');
+                // announce
+                const label = element.innerText || element.textContent || 'section';
+                announceToScreenReader(`${label} expanded`);
             } else {
                 subsections.classList.add('collapsed');
                 element.classList.add('collapsed');
                 subsections.setAttribute('aria-hidden', 'true');
                 element.setAttribute('aria-expanded', 'false');
+                // announce
+                const label = element.innerText || element.textContent || 'section';
+                announceToScreenReader(`${label} collapsed`);
             }
             saveSidebarState();
         }
@@ -4125,13 +4427,19 @@ embedding_vector = response.data[0].embedding
             });
         }
 
-        // Show/hide back to top button
+        // Show/hide back to top button, mobile menu button, and theme toggle
         function toggleBackToTop() {
             const backToTop = document.querySelector('.back-to-top');
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const themeToggle = document.querySelector('.theme-toggle');
             if (window.pageYOffset > 400) {
                 backToTop.classList.add('visible');
+                if (mobileMenuBtn) mobileMenuBtn.classList.add('visible');
+                if (themeToggle) themeToggle.classList.add('visible');
             } else {
                 backToTop.classList.remove('visible');
+                if (mobileMenuBtn) mobileMenuBtn.classList.remove('visible');
+                if (themeToggle) themeToggle.classList.remove('visible');
             }
         }
 
@@ -4151,6 +4459,36 @@ embedding_vector = response.data[0].embedding
             overlay.classList.toggle('visible', isOpen);
             document.body.classList.toggle('no-scroll', isOpen);
             sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            if (overlay) overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            if (mobileBtn) {
+                mobileBtn.classList.toggle('active', isOpen);
+                mobileBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+        }
+
+        // Debug Mode Toggle
+        function toggleDebugMode(force) {
+            const isDebug = document.body.classList.toggle('debug-mode', typeof force === 'boolean' ? force : !document.body.classList.contains('debug-mode'));
+            try { localStorage.setItem('ai102_debug_mode', isDebug ? 'true' : 'false'); } catch (e) { }
+            const btn = document.getElementById('debug-toggle'); if (btn) btn.classList.toggle('active', isDebug);
+        }
+
+        function toggleMenuPosition(force) {
+            try {
+                const body = document.body;
+                const isLeft = body.classList.contains('menu-position-left');
+                const newIsLeft = typeof force === 'boolean' ? (force === 'left') : !isLeft;
+                if (newIsLeft) {
+                    body.classList.remove('menu-position-right');
+                    body.classList.add('menu-position-left');
+                    localStorage.setItem('ai102_menu_position', 'left');
+                } else {
+                    body.classList.remove('menu-position-left');
+                    body.classList.add('menu-position-right');
+                    localStorage.setItem('ai102_menu_position', 'right');
+                }
+            } catch (e) { console.warn('Failed toggling menu position', e); }
         }
 
         // Smooth scroll for anchor links
@@ -4209,6 +4547,29 @@ embedding_vector = response.data[0].embedding
             });
             // restore state from localStorage
             restoreSidebarState();
+            // restore debug mode from localStorage or query param
+            try {
+                const searchParams = new URLSearchParams(window.location.search);
+                if (searchParams.get('debug') === 'true') toggleDebugMode(true);
+                else if (localStorage.getItem('ai102_debug_mode') === 'true') toggleDebugMode(true);
+            } catch (e) { }
+            // restore menu position from localStorage
+            try {
+                const position = localStorage.getItem('ai102_menu_position');
+                if (position === 'left') document.body.classList.add('menu-position-left');
+                else document.body.classList.add('menu-position-right');
+            } catch (e) { }
+            // Set initial sidebar & overlay aria states based on viewport & initial class
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = sidebar.classList.contains('mobile-open');
+            sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            if (overlay) overlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            // If viewport is <= 1024 and not open, ensure the sidebar is off-canvas
+            if (window.innerWidth <= 1024 && !isOpen) {
+                sidebar.classList.remove('mobile-open');
+                if (overlay) overlay.classList.remove('visible');
+            }
         }
         // call initialization
         document.addEventListener('DOMContentLoaded', initializeSidebarAria);
@@ -4252,6 +4613,14 @@ embedding_vector = response.data[0].embedding
                 setTimeout(() => { live.innerText = message; }, 50);
             }
         }
+        // Reset sidebar storage and expand all
+        function resetSidebarState() {
+            try {
+                localStorage.removeItem(SIDEBAR_STATE_KEY);
+            } catch (e) { console.warn('Failed removing sidebar state', e); }
+            expandAllSections();
+            announceToScreenReader('Sidebar preferences reset');
+        }
         // Close mobile sidebar when viewport expands above mobile/tablet size
         window.addEventListener('resize', () => {
             const sidebar = document.getElementById('sidebar');
@@ -4262,6 +4631,21 @@ embedding_vector = response.data[0].embedding
                 document.body.classList.remove('no-scroll');
             }
         });
+        // Mobile hamburger fade on scroll behavior
+        (function () {
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            if (!mobileBtn) return;
+            let timeoutId = null;
+            function onScroll() {
+                mobileBtn.classList.add('scrolling');
+                if (timeoutId) clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => mobileBtn.classList.remove('scrolling'), 1200);
+            }
+            window.addEventListener('scroll', onScroll, { passive: true });
+            // Ensure button is visible when focused (kit accessibility)
+            mobileBtn.addEventListener('focus', () => mobileBtn.classList.add('scrolling'));
+            mobileBtn.addEventListener('blur', () => mobileBtn.classList.remove('scrolling'));
+        })();
     </script>
     <script>
     // Anchor validation & report
@@ -4385,6 +4769,297 @@ embedding_vector = response.data[0].embedding
 
         document.addEventListener('DOMContentLoaded', () => {
             try { runAnchorValidation(); } catch (err) { console.error('Anchor validation error', err); }
+        });
+    })();
+
+    // Theme switching functionality
+    (function() {
+        const THEME_KEY = 'ai102-guide-theme';
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Initialize theme from localStorage or default to light
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+            applyTheme(theme);
+        }
+
+        // Apply theme to document
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                if (themeIcon) themeIcon.textContent = '🌙';
+            }
+
+            try {
+                localStorage.setItem(THEME_KEY, theme);
+            } catch (e) {
+                console.warn('Could not save theme preference', e);
+            }
+        }
+
+        // Toggle theme function (called by button)
+        window.toggleTheme = function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        };
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initTheme);
+
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                // Only auto-switch if user hasn't manually set a preference
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(e.matches ? 'dark' : 'light');
+                }
+            });
+        }
+    })();
+
+    // Enhanced search functionality - searches entire document
+    (function() {
+        const searchBox = document.getElementById('searchBox');
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        const navSections = document.querySelectorAll('.nav-section');
+        const navLinks = document.querySelectorAll('.nav-subsections a');
+        const contentBody = document.querySelector('.content-body');
+        let searchTimeout;
+        let originalContent = null;
+
+        if (!searchBox) return;
+
+        searchBox.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => performSearch(e.target.value), 300);
+        });
+
+        searchBox.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                searchBox.value = '';
+                performSearch('');
+                searchBox.blur();
+            }
+        });
+
+        function performSearch(query) {
+            query = query.trim().toLowerCase();
+
+            // Clear previous search highlights
+            navLinks.forEach(link => {
+                link.classList.remove('search-match');
+            });
+
+            // Remove highlights from content - restore original HTML
+            if (originalContent && contentBody) {
+                contentBody.innerHTML = originalContent;
+                // Important: reset originalContent after restoring so we can save fresh content
+                originalContent = null;
+            }
+
+            if (query === '') {
+                searchResultsInfo.style.display = 'none';
+                // Restore original state
+                navSections.forEach(section => {
+                    section.style.display = '';
+                    const subsections = section.querySelector('.nav-subsections');
+                    if (subsections) {
+                        Array.from(subsections.children).forEach(link => {
+                            link.style.display = '';
+                        });
+                    }
+                });
+                return;
+            }
+
+            // Save original content BEFORE highlighting
+            if (!originalContent && contentBody) {
+                originalContent = contentBody.innerHTML;
+            }
+
+            let matchCount = 0;
+            let matchingSections = new Set();
+            const sectionMap = new Map();
+
+            // Build map of section IDs to navigation links
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    const sectionId = href.substring(1);
+                    sectionMap.set(sectionId, link);
+                }
+            });
+
+            // Search through all sections in the content body
+            if (contentBody) {
+                const allSections = contentBody.querySelectorAll('section[id]');
+
+                allSections.forEach(section => {
+                    const sectionText = section.textContent.toLowerCase();
+                    const sectionId = section.getAttribute('id');
+
+                    if (sectionText.includes(query)) {
+                        matchCount++;
+                        matchingSections.add(sectionId);
+
+                        // Highlight the query in the section content
+                        try {
+                            highlightTextInElement(section, query);
+                        } catch (e) {
+                            console.warn('Failed to highlight in section:', sectionId, e);
+                        }
+                    }
+                });
+            }
+
+            // Update navigation to show matching sections
+            let navMatchCount = 0;
+            navSections.forEach(section => {
+                const subsections = section.querySelector('.nav-subsections');
+                if (!subsections) return;
+
+                let sectionHasMatch = false;
+                const links = subsections.querySelectorAll('a');
+
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    const sectionId = href ? href.substring(1) : '';
+
+                    if (matchingSections.has(sectionId)) {
+                        link.style.display = '';
+                        link.classList.add('search-match');
+                        sectionHasMatch = true;
+                        navMatchCount++;
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+
+                // Show/hide section based on matches
+                if (sectionHasMatch) {
+                    section.style.display = '';
+                    // Auto-expand sections with matches
+                    const titleEl = section.querySelector('.nav-section-title');
+                    const subsectionsEl = section.querySelector('.nav-subsections');
+                    if (titleEl && subsectionsEl && !subsectionsEl.classList.contains('open')) {
+                        toggleSection(titleEl);
+                    }
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Update search results info
+            if (matchCount > 0) {
+                searchResultsInfo.textContent = `Found ${matchCount} match${matchCount !== 1 ? 'es' : ''} in document`;
+                searchResultsInfo.style.display = 'block';
+            } else {
+                searchResultsInfo.textContent = 'No results found';
+                searchResultsInfo.style.display = 'block';
+            }
+        }
+
+        function highlightTextInElement(element, query) {
+            // Get plain text content to verify match exists
+            const plainText = element.textContent;
+            const plainTextLower = plainText.toLowerCase();
+
+            if (!plainTextLower.includes(query)) {
+                return; // No match found
+            }
+
+            // For simple approach: Use innerHTML with regex replacement
+            // This handles cross-element matches better
+            try {
+                const innerHTML = element.innerHTML;
+
+                // Create a regex that matches the query case-insensitively
+                // Escape special regex characters in the query
+                const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+                // Create regex that matches across HTML tags
+                // This regex will find the text even if it's split by tags
+                const textNodes = [];
+                const walker = document.createTreeWalker(
+                    element,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode: function(node) {
+                            if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                            if (node.parentElement.tagName === 'SCRIPT' ||
+                                node.parentElement.tagName === 'STYLE') {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            if (node.parentElement.classList &&
+                                node.parentElement.classList.contains('search-highlight')) {
+                                return NodeFilter.FILTER_REJECT;
+                            }
+                            return NodeFilter.FILTER_ACCEPT;
+                        }
+                    },
+                    false
+                );
+
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+
+                // Highlight matches within individual text nodes first
+                textNodes.forEach(textNode => {
+                    const text = textNode.nodeValue;
+                    const lowerText = text.toLowerCase();
+
+                    if (lowerText.includes(query)) {
+                        const parts = [];
+                        let lastIndex = 0;
+                        let index = lowerText.indexOf(query);
+
+                        while (index !== -1) {
+                            if (index > lastIndex) {
+                                parts.push(document.createTextNode(text.substring(lastIndex, index)));
+                            }
+
+                            const mark = document.createElement('mark');
+                            mark.className = 'search-highlight';
+                            mark.textContent = text.substring(index, index + query.length);
+                            parts.push(mark);
+
+                            lastIndex = index + query.length;
+                            index = lowerText.indexOf(query, lastIndex);
+                        }
+
+                        if (lastIndex < text.length) {
+                            parts.push(document.createTextNode(text.substring(lastIndex)));
+                        }
+
+                        const parent = textNode.parentNode;
+                        if (parent && parts.length > 0) {
+                            parts.forEach(part => {
+                                parent.insertBefore(part, textNode);
+                            });
+                            parent.removeChild(textNode);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.warn('Error highlighting text:', e);
+            }
+        }
+
+        // Add keyboard shortcut (Ctrl+/ or Cmd+/) to focus search
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                e.preventDefault();
+                searchBox.focus();
+            }
         });
     })();
     </script>
