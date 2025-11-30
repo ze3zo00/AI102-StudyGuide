@@ -760,7 +760,7 @@
                 justify-content: center;
                 position: fixed;
                 top: 20px;
-                right: 20px;
+                left: 20px;
                 z-index: 1100;
                 background-color: #000000;
                 color: #ffcc00;
@@ -772,19 +772,30 @@
                 font-size: 24px;
                 font-weight: bold;
                 box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-                transition: all 0.3s;
-                opacity: 0;
-                visibility: hidden;
-            }
-
-            .mobile-menu-btn.visible {
+                transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
                 opacity: 1;
                 visibility: visible;
+            }
+
+            /* Fade on scroll */
+            .mobile-menu-btn.scrolling {
+                opacity: 0.3;
+            }
+
+            .mobile-menu-btn.scrolling:hover,
+            .mobile-menu-btn.scrolling:focus {
+                opacity: 1;
             }
 
             .mobile-menu-btn:hover {
                 transform: translateY(-8px);
                 box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+                background-color: #ffcc00;
+                color: #000000;
+            }
+
+            .mobile-menu-btn.active {
+                opacity: 1 !important;
                 background-color: #ffcc00;
                 color: #000000;
             }
@@ -813,19 +824,49 @@
                 padding: 20px;
             }
             .mobile-menu-btn {
-                display: block;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
                 position: fixed;
                 top: 20px;
                 left: 20px;
-                z-index: 999;
+                z-index: 1100;
                 background-color: #000000;
                 color: #ffcc00;
-                border: 2px solid #ffcc00;
-                padding: 12px 16px;
-                border-radius: 6px;
+                border: 3px solid #ffcc00;
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
                 cursor: pointer;
-                font-size: 16px;
-                font-weight: 600;
+                font-size: 24px;
+                font-weight: bold;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+                transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+                opacity: 1;
+                visibility: visible;
+            }
+
+            /* Fade on scroll */
+            .mobile-menu-btn.scrolling {
+                opacity: 0.3;
+            }
+
+            .mobile-menu-btn.scrolling:hover,
+            .mobile-menu-btn.scrolling:focus {
+                opacity: 1;
+            }
+
+            .mobile-menu-btn:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+                background-color: #ffcc00;
+                color: #000000;
+            }
+
+            .mobile-menu-btn.active {
+                opacity: 1 !important;
+                background-color: #ffcc00;
+                color: #000000;
             }
         }
 
@@ -857,14 +898,14 @@
                 }
         .no-scroll { overflow: hidden; }
         
-        /* menu position: default to right next to back-to-top */
-        .menu-position-right .mobile-menu-btn, .menu-position-right .mobile-menu-btn.scrolling, .menu-position-right .mobile-menu-btn.active {
-            right: calc(40px + 56px + 12px);
-            left: auto;
-        }
+        /* menu position: default to left on mobile */
         .menu-position-left .mobile-menu-btn, .menu-position-left .mobile-menu-btn.scrolling, .menu-position-left .mobile-menu-btn.active {
             left: 20px;
             right: auto;
+        }
+        .menu-position-right .mobile-menu-btn, .menu-position-right .mobile-menu-btn.scrolling, .menu-position-right .mobile-menu-btn.active {
+            right: calc(40px + 56px + 12px);
+            left: auto;
         }
 
         .mobile-menu-btn {
@@ -4593,11 +4634,11 @@ embedding_vector = response.data[0].embedding
                 if (searchParams.get('debug') === 'true') toggleDebugMode(true);
                 else if (localStorage.getItem('ai102_debug_mode') === 'true') toggleDebugMode(true);
             } catch (e) { }
-            // restore menu position from localStorage
+            // restore menu position from localStorage (default to left)
             try {
                 const position = localStorage.getItem('ai102_menu_position');
-                if (position === 'left') document.body.classList.add('menu-position-left');
-                else document.body.classList.add('menu-position-right');
+                if (position === 'right') document.body.classList.add('menu-position-right');
+                else document.body.classList.add('menu-position-left');
             } catch (e) { }
             // Set initial sidebar & overlay aria states based on viewport & initial class
             const sidebar = document.getElementById('sidebar');
@@ -4675,16 +4716,57 @@ embedding_vector = response.data[0].embedding
         (function () {
             const mobileBtn = document.getElementById('mobileMenuBtn');
             if (!mobileBtn) return;
-            let timeoutId = null;
+            let scrollTimeoutId = null;
+            let isScrolling = false;
+
             function onScroll() {
-                mobileBtn.classList.add('scrolling');
-                if (timeoutId) clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => mobileBtn.classList.remove('scrolling'), 1200);
+                // Add scrolling class to fade the button
+                if (!isScrolling) {
+                    mobileBtn.classList.add('scrolling');
+                    isScrolling = true;
+                }
+
+                // Clear previous timeout
+                if (scrollTimeoutId) clearTimeout(scrollTimeoutId);
+
+                // After 1.5 seconds of no scrolling, keep it faded
+                scrollTimeoutId = setTimeout(() => {
+                    isScrolling = false;
+                    // Button stays in scrolling state (faded) until user hovers or focuses
+                }, 1500);
             }
+
             window.addEventListener('scroll', onScroll, { passive: true });
-            // Ensure button is visible when focused (kit accessibility)
-            mobileBtn.addEventListener('focus', () => mobileBtn.classList.add('scrolling'));
-            mobileBtn.addEventListener('blur', () => mobileBtn.classList.remove('scrolling'));
+
+            // Make button fully visible when user hovers
+            mobileBtn.addEventListener('mouseenter', () => {
+                mobileBtn.classList.remove('scrolling');
+            });
+
+            // When mouse leaves, add scrolling class back if we're not at top
+            mobileBtn.addEventListener('mouseleave', () => {
+                if (window.pageYOffset > 100) {
+                    mobileBtn.classList.add('scrolling');
+                }
+            });
+
+            // Ensure button is fully visible when focused (accessibility)
+            mobileBtn.addEventListener('focus', () => {
+                mobileBtn.classList.remove('scrolling');
+            });
+
+            mobileBtn.addEventListener('blur', () => {
+                if (window.pageYOffset > 100) {
+                    mobileBtn.classList.add('scrolling');
+                }
+            });
+
+            // Start with button visible at top of page
+            if (window.pageYOffset <= 100) {
+                mobileBtn.classList.remove('scrolling');
+            } else {
+                mobileBtn.classList.add('scrolling');
+            }
         })();
     </script>
     <script>
